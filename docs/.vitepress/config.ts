@@ -13,7 +13,28 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   title: 'VueMarkik',
   description: 'Markdown Rendering for Vue.js',
-  head: [['link', { rel: 'icon', href: '/logo.png' }]],
+  head: [
+    ['link', { rel: 'icon', href: '/logo.png' }],
+    [
+      'meta',
+      {
+        name: 'keywords',
+        content: 'vue, markdown, rendering, unified, remark, rehype',
+      },
+    ],
+    ['meta', { name: 'author', content: 'Tom Auger' }],
+    ['meta', { property: 'og:title', content: 'VueMarkik' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content:
+          'Markdown rendering for Vue.js - extensible and customizable, powered by unified, remark, and rehype',
+      },
+    ],
+    ['meta', { property: 'og:url', content: 'https://vuemarkik.dev' }],
+    ['meta', { property: 'og:image', content: '/logo.png' }],
+  ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
