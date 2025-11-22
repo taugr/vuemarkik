@@ -1,0 +1,93 @@
+{
+  "name": "vuemarkik",
+  "version": "0.1.1",
+  "description": "Markdown rendering for Vue.js - extensible and customizable, powered by unified, remark, and rehype",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
+  "homepage": "https://github.com/tom-auger/vuemarkik#readme",
+  "bugs": {
+    "url": "https://github.com/tom-auger/vuemarkik/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tom-auger/vuemarkik.git"
+  },
+  "author": "Tom Auger <tom@tau.gr>",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "playground": "vite",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "typecheck": "vue-tsc --noEmit",
+    "release": "bumpp && pnpm publish",
+    "prepublishOnly": "pnpm run build",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@shikijs/rehype": "^3.14.0",
+    "@shikijs/vitepress-twoslash": "^3.15.0",
+    "@types/hast": "^3.0.4",
+    "@types/node": "^22.15.17",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "bumpp": "^10.1.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.6.0",
+    "globals": "^16.5.0",
+    "happy-dom": "^17.4.7",
+    "husky": "^9.1.7",
+    "katex": "^0.16.25",
+    "lint-staged": "^16.2.7",
+    "playwright": "^1.56.1",
+    "prettier": "3.6.2",
+    "rehype-katex": "^7.0.1",
+    "rehype-mermaid": "^3.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "tsdown": "^0.11.9",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.47.0",
+    "vite": "npm:rolldown-vite@latest",
+    "vitepress": "2.0.0-alpha.12",
+    "vitepress-plugin-group-icons": "^1.6.3",
+    "vitest": "^3.1.3",
+    "vue": "^3.5.13",
+    "vue-tsc": "^3.0.3"
+  },
+  "dependencies": {
+    "@vueuse/core": "^13.9.0",
+    "hast-util-to-jsx-runtime": "^2.3.6",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5",
+    "vfile": "^6.0.3"
+  }
+}

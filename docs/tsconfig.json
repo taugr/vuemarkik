@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "vuemarkik": ["../src/index.ts"]
+    },
+    "jsx": "preserve",
+    "jsxImportSource": "vue"
+  },
+  "include": ["**/*", "../src/**/*"]
+}

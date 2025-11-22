@@ -1,0 +1,103 @@
+---
+description: VueMarkik project guidelines - Vue 3 markdown rendering library conventions, patterns, and best practices
+globs: ["**/*.vue", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+alwaysApply: true
+---
+
+# VueMarkik Project Rules
+
+## Project Overview
+VueMarkik is a Vue 3 library for rendering markdown. It uses the unified/remark/rehype ecosystem for markdown processing and provides Vue components for rendering.
+
+## Technology Stack
+- **Framework**: Vue 3 (Composition API with `<script setup>` or `defineComponent`)
+- **Language**: TypeScript (strict mode enabled)
+- **Package Manager**: pnpm (always use pnpm, never npm or yarn)
+- **Build Tool**: tsdown (for library builds)
+- **Testing**: Vitest with Vue Test Utils
+- **Documentation**: VitePress 2.0
+- **Markdown Processing**: unified, remark, rehype ecosystem
+
+## Code Style & Conventions
+
+### TypeScript
+- Use strict TypeScript with `verbatimModuleSyntax: true`
+- Prefer type imports: `import type { ... } from '...'`
+- Use proper type definitions from `src/types.ts`
+- Follow the existing type patterns (e.g., `ComponentsProp`, `RemarkPluginsProp`, `RehypePluginsProp`)
+
+### Vue Components
+- Use `defineComponent` for component definitions
+- Use the Composition API with `setup()` function
+- Use `inheritAttrs: false` when appropriate (as seen in Markdown.ts)
+- Props should be properly typed using the custom prop types from `types.ts`
+- Slots should be typed using `VueMarkSlots` type
+
+### File Organization
+- **Source code**: `src/` directory
+- **Tests**: `tests/` directory
+- **Documentation**: `docs/` directory (VitePress)
+- **Playground**: `playground/` directory for development/testing
+- Main entry point: `src/index.ts` exports all public components
+
+### Naming Conventions
+- Component files: PascalCase (e.g., `Markdown.ts`, `MarkdownAsync.ts`)
+- Type files: camelCase (e.g., `types.ts`)
+- Utility files: camelCase (e.g., `rendering.ts`)
+- Test files: `*.test.ts`
+
+## Development Workflow
+
+### Running Commands
+- `pnpm docs:dev` - Start VitePress dev server
+- `pnpm playground` - Run the playground for testing
+- `pnpm dev` - Watch mode for building library
+- `pnpm build` - Build the library
+- `pnpm test` - Run tests
+- `pnpm typecheck` - Type check without emitting
+
+### Testing
+- Write tests in `tests/` directory
+- Use Vitest and Vue Test Utils
+- Test files should be named `*.test.ts`
+
+### Documentation
+- Documentation is in `docs/` directory using VitePress
+- Guide pages go in `docs/guide/`
+- Use VitePress frontmatter for page configuration
+- Include code examples in documentation
+
+## Key Patterns
+
+### Markdown Processing
+- Use `unified` processor with `remark-parse`, `remark-rehype`, and rehype plugins
+- Processing pipeline: parse → remark plugins → rehype → render
+- Use `createVFile` helper to create vfile instances
+- Use `getProcessor` helper to create configured processors
+- Use `toJsx` helper to convert HAST to JSX/Vue components
+
+### Component Customization
+- Support custom Vue components via `components` prop
+- Support slots for custom rendering
+- Components prop merges with slots for rendering
+
+### Plugin Support
+- Support `remarkPlugins` array prop
+- Support `rehypePlugins` array prop
+- Plugins are passed to the unified processor
+
+## Important Notes
+- This is a library project, not an application
+- Main exports are in `src/index.ts`
+- Build output goes to `dist/` directory
+- The library is Vue 3 only (peer dependency)
+- No `dangerouslySetInnerHTML` - all rendering is safe via JSX/Vue components
+- Support CommonMark, GFM (via remark-gfm), and MDX (via plugins)
+
+## When Making Changes
+1. Ensure TypeScript types are correct
+2. Run `pnpm typecheck` to verify types
+3. Test in playground if making component changes
+4. Update documentation if adding features
+5. Write tests for new functionality
+6. Use pnpm for all package management operations
