@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MarkdownHooks, type RehypePlugins } from 'vuemarkik';
+import { MarkdownHooks, type RehypePlugins } from '../../src';
 import rehypeShiki from '@shikijs/rehype';
 
 const rehypePlugins: RehypePlugins = [

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MarkdownHooks, type RemarkPlugins, type RehypePlugins } from 'vuemarkik';
+import { MarkdownHooks, type RemarkPlugins, type RehypePlugins } from '../../src';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';

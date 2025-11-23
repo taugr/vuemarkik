@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Markdown, type RemarkPlugins } from 'vuemarkik';
+import { Markdown, type RemarkPlugins } from '../../src';
 import remarkGfm from 'remark-gfm';
 
 const remarkPlugins: RemarkPlugins = [
