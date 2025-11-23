@@ -28,7 +28,7 @@ features:
     details: No dangerouslySetInnerHtml or XSS attacks.
   - title: Customizable
     icon: 🧩
-    details: Create your own Vue components to customize rendering, e.g. pass your own component instead of &lt;h2&gt; for &num;&num; hola.
+    details: Create your own Vue components to customize rendering, e.g. pass your own component instead of &lt;h1&gt; for &num; hola.
   - title: Extensible
     icon: ➕
     details: Add functionality through remark and rehype plugins.

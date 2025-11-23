@@ -1,30 +1,32 @@
 <script setup lang="ts">
 import { Markdown, MarkdownChildNodes } from '../../src';
+import MarkdownExample from '../components/MarkdownExample.vue';
 
-const exampleMarkdown = `\
+// Sample markdown for examples
+const h1ComponentExample = `\
 # Custom Heading
 
-This is a paragraph with some \`inline code\` to demonstrate customization.
-
-## Another Heading
-
-More content here.
+This heading will be rendered using CustomH1 component.
 `;
 
-const componentsExampleMarkdown = `\
-# Styled with Custom Component
+const codeComponentExample = 'Here is some `inline code` that will be styled.';
 
-This heading uses a separate Vue component file.
+const h1SlotExample = `\
+# Custom Heading
 
-Here's some \`inline code\` that's also customized.
+This heading is styled with an inline template slot.
 `;
 
-const slotsExampleMarkdown = `\
-# Styled with Custom Template
+const codeSlotExample = 'Here is some `inline code` with custom styling.';
 
-This heading uses an inline Vue template slot.
+const combinedExample = `\
+# Combined Approach
 
-Here's some \`inline code\` customized with a slot too.
+This uses a custom H1 component and has \`inline code\` with a slot.
+
+## Subheading
+
+More content to demonstrate.
 `;
 </script>
 
@@ -38,6 +40,10 @@ There are two approaches to customize markdown rendering:
 2. **Using Vue template slots** - Define custom rendering inline with template slots
 
 Both approaches give you full control over styling and behavior. Choose based on whether you want to reuse components across multiple places (use `components` prop) or keep customization inline (use slots).
+
+::: tip Precedence
+If you define both a custom component (via `components` prop) and a slot for the same HTML element, **the slot will take precedence**. This allows you to override component-level customizations on a per-instance basis.
+:::
 
 ## Using Custom Vue Components
 
@@ -91,6 +97,16 @@ This heading will be rendered using CustomH1 component.
 </script>
 ```
 
+**Live Demo:**
+
+<MarkdownExample>
+
+::: raw
+<Markdown :text="h1ComponentExample" :components="{ h1: CustomH1Component }" />
+:::
+
+</MarkdownExample>
+
 ### Example: Custom Code Component
 
 You can customize any HTML element, including inline code:
@@ -133,14 +149,12 @@ const markdown = 'Here is some `inline code` that will be styled.';
 </template>
 ```
 
-### Live Example
-
-Here's a live demonstration using a custom H1 component:
+**Live Demo:**
 
 <MarkdownExample>
 
 ::: raw
-<Markdown :text="componentsExampleMarkdown" :components="{ h1: CustomH1Component }" />
+<Markdown :text="codeComponentExample" :components="{ code: CustomCodeComponent }" />
 :::
 
 </MarkdownExample>
@@ -184,14 +198,12 @@ This heading is styled with an inline template slot.
 
 The `node` parameter contains the element's data, including `childMarkdown` which holds the rendered children. The `MarkdownChildNodes` component renders these children for you.
 
-### Live Example
-
-Here's a live demonstration using a custom H1 slot:
+**Live Demo:**
 
 <MarkdownExample>
 
 ::: raw
-<Markdown :text="slotsExampleMarkdown">
+<Markdown :text="h1SlotExample">
 <template #h1="node">
 
 <h1 style="color: #9333ea; font-weight: bold; border-left: 4px solid #9333ea; padding-left: 1rem;">
@@ -234,14 +246,12 @@ const markdown = 'Here is some `inline code` with custom styling.';
 </style>
 ```
 
-### Live Example
-
-Here's a live demonstration using a custom code slot:
+**Live Demo:**
 
 <MarkdownExample>
 
 ::: raw
-<Markdown :text="slotsExampleMarkdown">
+<Markdown :text="codeSlotExample">
 <template #code="node">
 <code style="background-color: #fef3c7; color: #92400e; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; border: 1px solid #fbbf24;">
 <MarkdownChildNodes :node="node" />
@@ -256,6 +266,10 @@ Here's a live demonstration using a custom code slot:
 
 You can mix both approaches - use the `components` prop for some elements and slots for others:
 
+::: tip Precedence
+If you define both a custom component (via `components` prop) and a slot for the same HTML element, **the slot will take precedence**. This allows you to override component-level customizations on a per-instance basis.
+:::
+
 ```vue
 <template>
   <Markdown :text="markdown" :components="{ h1: CustomH1 }">
@@ -266,13 +280,55 @@ You can mix both approaches - use the `components` prop for some elements and sl
     </template>
   </Markdown>
 </template>
+
+<script setup lang="ts">
+import { Markdown, MarkdownChildNodes } from 'vuemarkik';
+import CustomH1 from './CustomH1.vue';
+
+const markdown = `\
+# Combined Approach
+
+This uses a custom H1 component and has \`inline code\` with a slot.
+
+## Subheading
+
+More content to demonstrate.
+`;
+</script>
+
+<style scoped>
+.inline-custom {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid #fbbf24;
+}
+</style>
 ```
+
+**Live Demo:**
+
+<MarkdownExample>
+
+::: raw
+<Markdown :text="combinedExample" :components="{ h1: CustomH1Component }">
+<template #code="node">
+<code style="background-color: #fef3c7; color: #92400e; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; border: 1px solid #fbbf24;">
+<MarkdownChildNodes :node="node" />
+</code>
+</template>
+</Markdown>
+:::
+
+</MarkdownExample>
 
 <script lang="ts">
 import { defineComponent, h } from 'vue';
 
-// Vitepress limitations mean we have to define a component with a render function
-// rather than with a template
+// VitePress limitations mean we have to define components with render functions
+// rather than with templates
 const CustomH1Component = defineComponent({
   setup(_, { slots }) {
     return () => h(
@@ -290,9 +346,29 @@ const CustomH1Component = defineComponent({
   }
 });
 
+const CustomCodeComponent = defineComponent({
+  setup(_, { slots }) {
+    return () => h(
+      'code',
+      {
+        style: {
+          backgroundColor: '#f3f4f6',
+          color: '#e74c3c',
+          padding: '0.2rem 0.4rem',
+          borderRadius: '4px',
+          fontFamily: "'Monaco', 'Courier New', monospace",
+          fontWeight: 'bold'
+        }
+      },
+      slots.default?.()
+    );
+  }
+});
+
 export default {
   components: {
-    CustomH1Component
+    CustomH1Component,
+    CustomCodeComponent
   }
 };
 </script>

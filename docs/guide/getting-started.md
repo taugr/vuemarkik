@@ -78,11 +78,14 @@ This renders the following:
 
 ## What's Next?
 
-The main power of **VueMarkik** is extensilibity to support markdown syntax extensions, and modify how markdown is rendered.
+Learn how to customize and extend VueMarkik:
 
-Take a look at the following examples:
+- **[Custom Vue Components](./custom-vue-components)** - Use your own components or slots for rendering
+- **[Remark & Rehype Plugins](./remark-rehype-plugins)** - Extend markdown syntax and rendering
 
-1. Render GitHub Flavored Markdown
-1. Code Syntax Highlighting with Shiki
-1. Render Mermaid diagrams
-1. Display math with KaTeX
+Or explore specific examples:
+
+- **[GitHub Flavored Markdown](./github-flavored-markdown)** - Tables, task lists, strikethrough, and more
+- **[Syntax Highlighting](./syntax-highlighting)** - Code highlighting with Shiki
+- **[Mermaid Diagrams](./mermaid)** - Render diagrams and flowcharts
+- **[Math with KaTeX](./katex)** - Display mathematical equations

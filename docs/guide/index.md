@@ -4,7 +4,7 @@
 
 <div class="tip custom-block" style="padding-top: 8px">
 
-Just want to use it? Skip to the [Quickstart](./getting-started).
+Just want to use it? Skip to [Getting Started](./getting-started).
 
 </div>
 
@@ -20,4 +20,4 @@ Just want to use it? Skip to the [Quickstart](./getting-started).
 
 - **Custom Vue Components**
 
-  To further customize the rendered markdown, you can provide custom Vue components that will be used instead of standard HTML elements, for example a custom component for `<h2>` can customise the rendering of `## hola`.
+  To further customize the rendered markdown, you can provide custom Vue components that will be used instead of standard HTML elements, or use template slots for dynamic customization. For example, a custom component or slot for `<h1>` can customise the rendering of `# hola`.
