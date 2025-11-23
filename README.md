@@ -45,16 +45,26 @@ import { Markdown } from 'vuemarkik';
 
 📚 **[Full Documentation](https://vuemarkik.dev)**
 
-- [Getting Started](https://vuemarkik.dev/guide/getting-started) - Installation and basic usage
-- [Custom Vue Components](https://vuemarkik.dev/guide/custom-vue-components) - Replace markdown elements with your components
+### Getting Started
+
+- [Installation & Basic Usage](https://vuemarkik.dev/guide/getting-started) - Get up and running with VueMarkik
+
+### Features & Examples
+
 - [Syntax Highlighting](https://vuemarkik.dev/guide/syntax-highlighting) - Code block highlighting with Shiki
 - [GitHub Flavored Markdown](https://vuemarkik.dev/guide/github-flavored-markdown) - Tables, task lists, and more
 - [KaTeX Math](https://vuemarkik.dev/guide/katex) - Render mathematical equations
 - [Mermaid Diagrams](https://vuemarkik.dev/guide/mermaid) - Create diagrams and flowcharts
+
+### Advanced Usage
+
+- [Custom Vue Components](https://vuemarkik.dev/guide/custom-vue-components) - Replace markdown elements with your components
 - [Remark & Rehype Plugins](https://vuemarkik.dev/guide/remark-rehype-plugins) - Extend markdown processing
 - [API Reference](https://vuemarkik.dev/guide/api-reference) - Complete API documentation
 
 ## Development
+
+> For contribution guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ### Install dependencies
 
@@ -82,4 +92,4 @@ pnpm build
 
 ## License
 
-MIT © [Tom Auger](https://github.com/tom-auger)
+MIT © 2025-present [Tom Auger](https://github.com/tom-auger)
