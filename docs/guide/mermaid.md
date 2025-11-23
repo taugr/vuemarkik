@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { MarkdownHooks } from '../../src';
+import { MarkdownHooks, type RehypePlugins } from 'vuemarkik';
 import rehypeMermaid from 'rehype-mermaid';
 
-const rehypePlugins = [
+const rehypePlugins: RehypePlugins = [
   [rehypeMermaid],
 ];
 
@@ -36,19 +36,19 @@ Mermaid lets you describe flow charts, sequence diagrams, mind maps, and more us
 ::: code-group
 
 ```sh [npm]
-npm i -D rehype-mermaid
+npm install rehype-mermaid
 ```
 
 ```sh [yarn]
-yarn add -D rehype-mermaid
+yarn add rehype-mermaid
 ```
 
 ```sh [pnpm]
-pnpm add -D rehype-mermaid
+pnpm add rehype-mermaid
 ```
 
 ```sh [bun]
-bun add -D rehype-mermaid
+bun add rehype-mermaid
 ```
 
 ```sh [deno]
@@ -63,14 +63,14 @@ Once the plugin is installed, pass it to `MarkdownHooks` (or `MarkdownAsync`) th
 
 ```vue
 <template>
-  <MarkdownHooks :text="diagram" :rehypePlugins="rehypePlugins" />
+  <MarkdownHooks :text="diagram" :rehype-plugins="rehypePlugins" />
 </template>
 
 <script setup lang="ts">
-import { MarkdownHooks } from 'vuemarkik';
+import { MarkdownHooks, type RehypePlugins } from 'vuemarkik';
 import rehypeMermaid from 'rehype-mermaid';
 
-const rehypePlugins = [[rehypeMermaid]];
+const rehypePlugins: RehypePlugins = [[rehypeMermaid]];
 
 const diagram = `\
 \`\`\`mermaid
@@ -99,7 +99,7 @@ This renders as:
 <MarkdownExample>
 
 ::: raw
-<MarkdownHooks :text="diagram" :rehypePlugins="rehypePlugins" />
+<MarkdownHooks :text="diagram" :rehype-plugins="rehypePlugins" />
 :::
 
 </MarkdownExample>

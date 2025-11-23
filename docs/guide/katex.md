@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { MarkdownHooks } from '../../src';
+import { MarkdownHooks, type RemarkPlugins, type RehypePlugins } from 'vuemarkik';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
-const remarkPlugins = [remarkMath];
-const rehypePlugins = [rehypeKatex];
+const remarkPlugins: RemarkPlugins = [remarkMath];
+const rehypePlugins: RehypePlugins = [rehypeKatex];
 
 const proof = String.raw`
-# Cayley’s Theorem
+### Cayley’s Theorem
 
 **Theorem.** Every group $G$ is isomorphic to a subgroup of the symmetric group on $G$.
 
@@ -49,19 +49,19 @@ Use KaTeX to typeset inline math (`$...$`) and display math (`$$...$$`) inside y
 ::: code-group
 
 ```sh [npm]
-npm i -D remark-math rehype-katex katex
+npm install remark-math rehype-katex katex
 ```
 
 ```sh [yarn]
-yarn add -D remark-math rehype-katex katex
+yarn add remark-math rehype-katex katex
 ```
 
 ```sh [pnpm]
-pnpm add -D remark-math rehype-katex katex
+pnpm add remark-math rehype-katex katex
 ```
 
 ```sh [bun]
-bun add -D remark-math rehype-katex katex
+bun add remark-math rehype-katex katex
 ```
 
 ```sh [deno]
@@ -82,20 +82,28 @@ Pass both plugins to VueMarkik through the `remarkPlugins` and `rehypePlugins` p
 
 ```vue
 <template>
-  <MarkdownHooks :text="mathNotes" :remarkPlugins="remarkPlugins" :rehypePlugins="rehypePlugins" />
+  <MarkdownHooks
+    :text="proof"
+    :remark-plugins="remarkPlugins"
+    :rehype-plugins="rehypePlugins"
+  />
 </template>
 
 <script setup lang="ts">
-import { MarkdownHooks } from 'vuemarkik';
+import {
+  MarkdownHooks,
+  type RemarkPlugins,
+  type RehypePlugins,
+} from 'vuemarkik';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
-const remarkPlugins = [remarkMath];
-const rehypePlugins = [rehypeKatex];
+const remarkPlugins: RemarkPlugins = [remarkMath];
+const rehypePlugins: RehypePlugins = [rehypeKatex];
 
 const proof = String.raw`
-# Cayley’s Theorem
+### Cayley’s Theorem
 
 **Theorem.** Every group $G$ is isomorphic to a subgroup of the symmetric group on $G$.
 
@@ -121,6 +129,7 @@ If $|G| = n$, then $\mathrm{Sym}(X) \cong S_n$, so $G$ embeds in $S_n$.
 $$
 \square
 $$`;
+</script>
 ```
 
 This renders as:
@@ -128,7 +137,7 @@ This renders as:
 <MarkdownExample>
 
 ::: raw
-<MarkdownHooks :text="proof" :remarkPlugins="remarkPlugins" :rehypePlugins="rehypePlugins" />
+<MarkdownHooks :text="proof" :remark-plugins="remarkPlugins" :rehypePlugins="rehypePlugins" />
 :::
 
 </MarkdownExample>
@@ -138,7 +147,7 @@ This renders as:
 `rehype-katex` accepts any of the [KaTeX options](https://katex.org/docs/options.html). Pass them as the second item in the plugin tuple to enable features such as custom macros, error reporting, or `trust` mode for user-supplied HTML.
 
 ```ts
-const rehypePlugins = [
+const rehypePlugins: RehypePlugins = [
   [rehypeKatex, { throwOnError: false, macros: { '\\RR': '\\mathbb{R}' } }],
 ];
 ```

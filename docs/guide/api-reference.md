@@ -10,12 +10,12 @@ Synchronous markdown renderer. Processes markdown immediately during component s
 
 **Props:**
 
-| Prop            | Type     | Required | Default | Description                             |
-| --------------- | -------- | -------- | ------- | --------------------------------------- |
-| `text`          | `string` | Yes      | -       | Markdown content to render              |
-| `components`    | `object` | No       | `{}`    | Custom Vue components for HTML elements |
-| `remarkPlugins` | `array`  | No       | `[]`    | Remark plugins to process markdown      |
-| `rehypePlugins` | `array`  | No       | `[]`    | Rehype plugins to transform HTML        |
+| Prop            | Type            | Required | Default | Description                             |
+| --------------- | --------------- | -------- | ------- | --------------------------------------- |
+| `text`          | `string`        | Yes      | -       | Markdown content to render              |
+| `components`    | `object`        | No       | `{}`    | Custom Vue components for HTML elements |
+| `remarkPlugins` | `RemarkPlugins` | No       | `[]`    | Remark plugins to process markdown      |
+| `rehypePlugins` | `RehypePlugins` | No       | `[]`    | Rehype plugins to transform HTML        |
 
 **Slots:**
 
@@ -62,12 +62,12 @@ Asynchronous markdown renderer. Uses async setup for processing markdown. Requir
 
 **Props:**
 
-| Prop            | Type     | Required | Default | Description                             |
-| --------------- | -------- | -------- | ------- | --------------------------------------- |
-| `text`          | `string` | Yes      | -       | Markdown content to render              |
-| `components`    | `object` | No       | `{}`    | Custom Vue components for HTML elements |
-| `remarkPlugins` | `array`  | No       | `[]`    | Remark plugins to process markdown      |
-| `rehypePlugins` | `array`  | No       | `[]`    | Rehype plugins to transform HTML        |
+| Prop            | Type            | Required | Default | Description                             |
+| --------------- | --------------- | -------- | ------- | --------------------------------------- |
+| `text`          | `string`        | Yes      | -       | Markdown content to render              |
+| `components`    | `object`        | No       | `{}`    | Custom Vue components for HTML elements |
+| `remarkPlugins` | `RemarkPlugins` | No       | `[]`    | Remark plugins to process markdown      |
+| `rehypePlugins` | `RehypePlugins` | No       | `[]`    | Rehype plugins to transform HTML        |
 
 **Slots:**
 
@@ -99,12 +99,12 @@ Reactive markdown renderer using Vue composables. Provides reactive updates and 
 
 **Props:**
 
-| Prop            | Type     | Required | Default | Description                             |
-| --------------- | -------- | -------- | ------- | --------------------------------------- |
-| `text`          | `string` | Yes      | -       | Markdown content to render              |
-| `components`    | `object` | No       | `{}`    | Custom Vue components for HTML elements |
-| `remarkPlugins` | `array`  | No       | `[]`    | Remark plugins to process markdown      |
-| `rehypePlugins` | `array`  | No       | `[]`    | Rehype plugins to transform HTML        |
+| Prop            | Type            | Required | Default | Description                             |
+| --------------- | --------------- | -------- | ------- | --------------------------------------- |
+| `text`          | `string`        | Yes      | -       | Markdown content to render              |
+| `components`    | `object`        | No       | `{}`    | Custom Vue components for HTML elements |
+| `remarkPlugins` | `RemarkPlugins` | No       | `[]`    | Remark plugins to process markdown      |
+| `rehypePlugins` | `RehypePlugins` | No       | `[]`    | Rehype plugins to transform HTML        |
 
 **Events:**
 
@@ -229,30 +229,32 @@ const components = {
 
 #### remarkPlugins
 
-- **Type:** `PluggableList`
+- **Type:** `RemarkPlugins`
 - **Required:** No
 - **Default:** `[]`
 - **Description:** Array of remark plugins to process markdown AST
 
 ```ts twoslash
+import type { RemarkPlugins } from 'vuemarkik';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 // ---cut---
-const plugins = [remarkGfm, remarkMath];
+const plugins: RemarkPlugins = [remarkGfm, remarkMath];
 ```
 
 #### rehypePlugins
 
-- **Type:** `PluggableList`
+- **Type:** `RehypePlugins`
 - **Required:** No
 - **Default:** `[]`
 - **Description:** Array of rehype plugins to transform HTML AST
 
 ```ts twoslash
+import type { RehypePlugins } from 'vuemarkik';
 import rehypeKatex from 'rehype-katex';
 import rehypeMermaid from 'rehype-mermaid';
 // ---cut---
-const plugins = [rehypeKatex, rehypeMermaid];
+const plugins: RehypePlugins = [rehypeKatex, rehypeMermaid];
 ```
 
 ## Slots Reference
@@ -327,4 +329,6 @@ Choose the right component for your use case:
 | **MarkdownHooks**      | Using plugins with async operations without depending on `<Suspense>`. |
 | **MarkdownChildNodes** | Rendering children in custom slots. Not used standalone.               |
 
-**Recommendation:** If you are not using asynchronous plugins use with `Markdown`. If you need async support `MarkdownHooks` is recommended unless you are already using `Suspense` in your applications.
+::: tip Recommendation
+If you are not using asynchronous plugins use with `Markdown`. If you need async support `MarkdownHooks` is recommended unless you are already using `Suspense` in your applications.
+:::

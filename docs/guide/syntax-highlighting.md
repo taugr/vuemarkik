@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { MarkdownHooks } from '../../src';
+import { MarkdownHooks, type RehypePlugins } from 'vuemarkik';
 import rehypeShiki from '@shikijs/rehype';
 
-const rehypePlugins = [
+const rehypePlugins: RehypePlugins = [
   [
     rehypeShiki,
     {
@@ -68,19 +68,19 @@ First install the shiki rehype plugin:
 ::: code-group
 
 ```sh [npm]
-npm i -D @shikijs/rehype
+npm install @shikijs/rehype
 ```
 
 ```sh [yarn]
-yarn add -D @shikijs/rehype
+yarn add @shikijs/rehype
 ```
 
 ```sh [pnpm]
-pnpm add -D @shikijs/rehype
+pnpm add @shikijs/rehype
 ```
 
 ```sh [bun]
-bun add -D @shikijs/rehype
+bun add @shikijs/rehype
 ```
 
 ```sh [deno]
@@ -95,14 +95,14 @@ In this example we use the `MarkdownHooks` component to render code blocks for m
 
 ```vue
 <template>
-  <MarkdownHooks :text="code" :rehypePlugins="rehypePlugins" />
+  <MarkdownHooks :text="code" :rehype-plugins="rehypePlugins" />
 </template>
 
 <script setup lang="ts">
-import { MarkdownHooks } from 'vuemarkik';
+import { MarkdownHooks, type RehypePlugins } from 'vuemarkik';
 import rehypeShiki from '@shikijs/rehype';
 
-const rehypePlugins = [
+const rehypePlugins: RehypePlugins = [
   [
     rehypeShiki,
     {
@@ -161,7 +161,7 @@ This renders as:
 <MarkdownExample>
 
 ::: raw
-<MarkdownHooks :text="code" :rehypePlugins="rehypePlugins" />
+<MarkdownHooks :text="code" :rehype-plugins="rehypePlugins" />
 :::
 
 </MarkdownExample>

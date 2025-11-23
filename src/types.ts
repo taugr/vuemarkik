@@ -6,9 +6,13 @@ export type Markdown = string;
 
 export type ComponentsProp = PropType<Partial<Components>>;
 
-export type RemarkPluginsProp = PropType<PluggableList>;
+export type RemarkPlugins = PluggableList;
 
-export type RehypePluginsProp = PropType<PluggableList>;
+export type RehypePlugins = PluggableList;
+
+export type RemarkPluginsProp = PropType<RemarkPlugins>;
+
+export type RehypePluginsProp = PropType<RehypePlugins>;
 
 export type VueMarkSlots = SlotsType<{
   [TagName in keyof Components]: { childMarkdown: VNode };

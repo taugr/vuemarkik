@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
+import { Markdown, type RemarkPlugins } from 'vuemarkik';
 import remarkGfm from 'remark-gfm';
 
-const remarkPlugins = [
+const remarkPlugins: RemarkPlugins = [
   remarkGfm
 ];
 
@@ -52,20 +53,20 @@ deno add npm:remark-gfm
 
 :::
 
-You can then provide it to the `remarkPlugins` prop as in the following example:
+You can then provide it to the `remark-plugins` prop as in the following example:
 
-```html
+```vue
 <template>
-  <Markdown :text="notes" :remarkPlugins="remarkPlugins" />
+  <Markdown :text="notes" :remark-plugins="remarkPlugins" />
 </template>
 
-<script setup>
-  import { Markdown } from 'vuemarkik';
-  import remarkGfm from 'remark-gfm';
+<script setup lang="ts">
+import { Markdown, type RemarkPlugins } from 'vuemarkik';
+import remarkGfm from 'remark-gfm';
 
-  const remarkPlugins = [remarkGfm];
+const remarkPlugins: RemarkPlugins = [remarkGfm];
 
-  const notes = `\
+const notes = `\
 ### Shopping List
 
 - [ ] bananas
@@ -90,7 +91,7 @@ This renders the following output:
 <MarkdownExample>
 
 :::raw
-<Markdown :text="notes" :remarkPlugins="remarkPlugins" />
+<Markdown :text="notes" :remark-plugins="remarkPlugins" />
 :::
 
 </MarkdownExample>
