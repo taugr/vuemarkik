@@ -5,3 +5,4 @@ dist
 .vscode
 docs/.vitepress/cache
 docs/.vitepress/dist
+coverage
