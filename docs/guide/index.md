@@ -1,10 +1,16 @@
 # What is VueMarkik?
 
-**VueMarkik** is a mini component library for Vue.js with components that take a markdown string and safely render it to Vue elements. It is built on top of [unified](https://github.com/unifiedjs/unified), using [remark](https://github.com/remarkjs/remark) to parse markdown, and [rehype](https://github.com/rehypejs/rehype) to render it to Vue components.
+**VueMarkik** (pronounced _view-mark-eek_, IPA /vjuː mɑːrk ik/) is a mini component library for Vue.js with components that take a markdown string and safely render it to Vue elements. It is built on top of [unified](https://github.com/unifiedjs/unified), using [remark](https://github.com/remarkjs/remark) to parse markdown, and [rehype](https://github.com/rehypejs/rehype) to render it to Vue components.
 
 <div class="tip custom-block" style="padding-top: 8px">
 
 Just want to use it? Skip to [Getting Started](./getting-started).
+
+</div>
+
+<div class="info custom-block">
+
+The name **VueMarkik** comprises the words _Vue Markdown_ with the Armenian diminutive _-ik_ (_-իկ_), which turns nouns into smaller, cuter, or familiar versions of themselves. Thus **VueMarkik** is a small friendly plugin for rendering markdown in Vue.js.
 
 </div>
 

@@ -1,7 +1,7 @@
 <template>
   <h1>VueMarkik Examples</h1>
 
-  <template v-for="example in examples" :key="example.name">
+  <template v-for="(example, index) in examples" :key="index">
     <hr />
     <component :is="example" />
   </template>
