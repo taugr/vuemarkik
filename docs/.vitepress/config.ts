@@ -14,12 +14,20 @@ export default defineConfig({
   title: 'VueMarkik',
   description: 'Markdown Rendering for Vue.js',
   head: [
-    ['link', { rel: 'icon', href: '/logo.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
     [
       'meta',
       {
         name: 'keywords',
         content: 'vue, markdown, rendering, unified, remark, rehype',
+      },
+    ],
+    [
+      'meta',
+      {
+        name: 'description',
+        content:
+          'Markdown rendering for Vue.js - extensible and customizable, powered by unified, remark, and rehype',
       },
     ],
     ['meta', { name: 'author', content: 'Tom Auger' }],
