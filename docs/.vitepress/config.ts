@@ -14,7 +14,25 @@ export default defineConfig({
   title: 'VueMarkik',
   description: 'Markdown Rendering for Vue.js',
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    [
+      'link',
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '48x48',
+        href: '/favicon-48.png',
+      },
+    ],
+    [
+      'link',
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '96x96',
+        href: '/favicon-96.png',
+      },
+    ],
     [
       'meta',
       {
