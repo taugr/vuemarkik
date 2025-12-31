@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/public/logo.png" alt="VueMarkik Logo" width="200" />
+  <img src="docs/public/logo.webp" alt="VueMarkik Logo" width="200" />
   <h1>VueMarkik</h1>
   <p>Markdown rendering for Vue.js - extensible and customizable, powered by unified, remark, and rehype</p>
 

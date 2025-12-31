@@ -59,7 +59,7 @@ export default defineConfig({
       },
     ],
     ['meta', { property: 'og:url', content: 'https://vuemarkik.dev' }],
-    ['meta', { property: 'og:image', content: '/logo.png' }],
+    ['meta', { property: 'og:image', content: '/logo.webp' }],
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -123,7 +123,7 @@ export default defineConfig({
       ],
     },
 
-    logo: '/logo.png',
+    logo: '/logo.webp',
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/tom-auger/vuemarkik' },

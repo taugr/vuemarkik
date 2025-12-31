@@ -7,7 +7,7 @@ hero:
   text: 'Markdown rendering for Vue.js'
   tagline: Extensible and customizable, powered by unified, remark, and rehype
   image:
-    src: /logo.png
+    src: /logo.webp
   actions:
     - theme: brand
       text: Get Started
