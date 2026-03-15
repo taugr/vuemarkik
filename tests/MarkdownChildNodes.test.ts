@@ -244,15 +244,20 @@ describe('MarkdownChildNodes Component', () => {
   });
 
   describe('Edge cases', () => {
-    test('handles node with no children gracefully', () => {
-      const wrapper = mount(MarkdownChildNodes, {
-        props: {
-          node: undefined as unknown as { childMarkdown: VNode },
-        },
-      });
+    test('warns when node prop is missing', () => {
+      const consoleWarnSpy = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
 
-      // When node is undefined, component returns null/empty
-      expect(wrapper.html()).toBeDefined();
+      const wrapper = mount(MarkdownChildNodes);
+      const hasMissingNodeWarning = consoleWarnSpy.mock.calls.some(([msg]) =>
+        String(msg).includes('Missing required prop: "node"'),
+      );
+
+      expect(hasMissingNodeWarning).toBe(true);
+      expect(wrapper.html()).toBe('');
+
+      consoleWarnSpy.mockRestore();
     });
 
     test('handles empty childMarkdown', () => {
