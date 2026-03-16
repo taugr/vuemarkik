@@ -1,0 +1,38 @@
+{
+  // Enable Renovate
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+
+  // Extend from recommended base configuration
+  extends: ['config:recommended', ':disableDependencyDashboard'],
+
+  // Timezone for schedules (adjust as needed)
+  timezone: 'Asia/Yerevan',
+
+  // Fallback schedule for anything without a specific schedule
+  schedule: ['* 0-12 * * 1-5'],
+
+  // Labels for GitHub PRs
+  labels: ['dependencies'],
+
+  // Package rules for different update schedules
+  packageRules: [
+    {
+      description: 'Update dependencies every weekday morning',
+      matchDepTypes: [
+        'dependencies',
+        'peerDependencies',
+        'devDependencies',
+        'pnpm.catalog',
+        'pnpm.catalog.*',
+      ],
+      // Cron: Every day in the morning (minute hour day month weekday)
+      schedule: ['* 0-12 * * *'],
+    },
+    {
+      description: 'Update GitHub Actions workflows on 3rd Monday of the month',
+      matchFileNames: ['.github/workflows/**'],
+      // Cron: Every Monday during days 15-21 (contains 3rd Monday)
+      schedule: ['* * 15-21 * 1'],
+    },
+  ],
+}
