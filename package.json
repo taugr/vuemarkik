@@ -71,7 +71,7 @@
     "@vitejs/plugin-vue": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.0",
     "@vue/test-utils": "^2.4.6",
-    "bumpp": "^11.0.0",
+    "bumpp": "^11.0.1",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.8.0",
@@ -86,16 +86,16 @@
     "rehype-mermaid": "^3.0.0",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
-    "tsdown": "^0.21.3",
+    "tsdown": "^0.21.4",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.0",
+    "typescript-eslint": "^8.57.1",
     "vite": "^8.0.0",
     "vitepress": "2.0.0-alpha.12",
     "vitepress-plugin-group-icons": "^1.7.1",
     "vitest": "^4.1.0",
     "vue": "^3.5.30",
     "vue-eslint-parser": "^10.4.0",
-    "vue-tsc": "^3.2.5"
+    "vue-tsc": "^3.2.6"
   },
   "dependencies": {
     "@vueuse/core": "^14.2.1",
