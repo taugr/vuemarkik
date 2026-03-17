@@ -6,6 +6,7 @@ import {
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import pkg from '../../package.json';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -71,6 +72,23 @@ export default defineConfig({
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Customization', link: '/guide/remark-rehype-plugins' },
           { text: 'Examples', link: '/guide/github-flavored-markdown' },
+        ],
+      },
+      {
+        text: `v${pkg.version}`,
+        items: [
+          {
+            text: `v${pkg.version}`,
+            link: 'https://www.npmjs.com/package/vuemarkik',
+          },
+          {
+            text: 'Changelog',
+            link: 'https://github.com/tom-auger/vuemarkik/releases',
+          },
+          {
+            text: 'Contributing',
+            link: 'https://github.com/tom-auger/vuemarkik/blob/main/CONTRIBUTING.md',
+          },
         ],
       },
     ],
