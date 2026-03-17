@@ -82,6 +82,7 @@ Learn how to customize and extend VueMarkik:
 
 - **[Custom Vue Components](./custom-vue-components)** - Use your own components or slots for rendering
 - **[Remark & Rehype Plugins](./remark-rehype-plugins)** - Extend markdown syntax and rendering
+- **[Streaming Markdown](./streaming-markdown)** - Handle incremental LLM output without console spam
 
 Or explore specific examples:
 

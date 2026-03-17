@@ -114,6 +114,7 @@ export default defineConfig({
             { text: 'Syntax Highlighting', link: '/guide/syntax-highlighting' },
             { text: 'Mermaid Diagrams', link: '/guide/mermaid' },
             { text: 'KaTeX Math', link: '/guide/katex' },
+            { text: 'Streaming Markdown', link: '/guide/streaming-markdown' },
           ],
         },
         {

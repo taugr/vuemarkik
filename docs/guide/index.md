@@ -6,6 +6,8 @@
 
 Just want to use it? Skip to [Getting Started](./getting-started).
 
+Working with LLM output? See [Streaming Markdown](./streaming-markdown).
+
 </div>
 
 <div class="info custom-block">
@@ -27,3 +29,7 @@ The name **VueMarkik** comprises the words _Vue Markdown_ with the Armenian dimi
 - **Custom Vue Components**
 
   To further customize the rendered markdown, you can provide custom Vue components that will be used instead of standard HTML elements, or use template slots for dynamic customization. For example, a custom component or slot for `<h1>` can customise the rendering of `# hola`.
+
+- **Streaming-Friendly Recovery**
+
+  When markdown is updated incrementally, such as from LLM output, VueMarkik can preserve the last successful render and emit `render-error` instead of flooding the console with warnings.

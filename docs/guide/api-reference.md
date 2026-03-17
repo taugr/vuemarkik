@@ -8,14 +8,23 @@ Complete reference for vuemarkik components, props, and slots.
 
 Synchronous markdown renderer. Processes markdown immediately during component setup.
 
+If a render fails, `Markdown` preserves the last successful render by default. This is useful when the markdown source is updated incrementally, for example while streaming output from an LLM.
+
 **Props:**
 
-| Prop            | Type            | Required | Default | Description                             |
-| --------------- | --------------- | -------- | ------- | --------------------------------------- |
-| `text`          | `string`        | Yes      | -       | Markdown content to render              |
-| `components`    | `object`        | No       | `{}`    | Custom Vue components for HTML elements |
-| `remarkPlugins` | `RemarkPlugins` | No       | `[]`    | Remark plugins to process markdown      |
-| `rehypePlugins` | `RehypePlugins` | No       | `[]`    | Rehype plugins to transform HTML        |
+| Prop            | Type              | Required | Default    | Description                               |
+| --------------- | ----------------- | -------- | ---------- | ----------------------------------------- |
+| `text`          | `string`          | Yes      | -          | Markdown content to render                |
+| `components`    | `object`          | No       | `{}`       | Custom Vue components for HTML elements   |
+| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`       | Remark plugins to process markdown        |
+| `rehypePlugins` | `RehypePlugins`   | No       | `[]`       | Rehype plugins to transform HTML          |
+| `errorMode`     | `RenderErrorMode` | No       | `'silent'` | Controls how render failures are surfaced |
+
+**Events:**
+
+| Event          | Payload              | Description                           |
+| -------------- | -------------------- | ------------------------------------- |
+| `render-error` | `RenderErrorPayload` | Emitted when markdown rendering fails |
 
 **Slots:**
 
@@ -60,14 +69,23 @@ const markdown = '# Custom Heading';
 
 Asynchronous markdown renderer. Uses async setup for processing markdown. Requires wrapping in `<Suspense>`. Use this when using rehype or remark plugins that need to run asynchronously.
 
+If an updated render fails, `MarkdownAsync` keeps the previous successful output unless `errorMode` is set to `'throw'`.
+
 **Props:**
 
-| Prop            | Type            | Required | Default | Description                             |
-| --------------- | --------------- | -------- | ------- | --------------------------------------- |
-| `text`          | `string`        | Yes      | -       | Markdown content to render              |
-| `components`    | `object`        | No       | `{}`    | Custom Vue components for HTML elements |
-| `remarkPlugins` | `RemarkPlugins` | No       | `[]`    | Remark plugins to process markdown      |
-| `rehypePlugins` | `RehypePlugins` | No       | `[]`    | Rehype plugins to transform HTML        |
+| Prop            | Type              | Required | Default    | Description                               |
+| --------------- | ----------------- | -------- | ---------- | ----------------------------------------- |
+| `text`          | `string`          | Yes      | -          | Markdown content to render                |
+| `components`    | `object`          | No       | `{}`       | Custom Vue components for HTML elements   |
+| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`       | Remark plugins to process markdown        |
+| `rehypePlugins` | `RehypePlugins`   | No       | `[]`       | Rehype plugins to transform HTML          |
+| `errorMode`     | `RenderErrorMode` | No       | `'silent'` | Controls how render failures are surfaced |
+
+**Events:**
+
+| Event          | Payload              | Description                           |
+| -------------- | -------------------- | ------------------------------------- |
+| `render-error` | `RenderErrorPayload` | Emitted when markdown rendering fails |
 
 **Slots:**
 
@@ -97,20 +115,24 @@ const markdown = '# Async Processing\n\nContent loaded asynchronously.';
 
 Reactive markdown renderer using Vue composables. Provides reactive updates and emits events. Use this when using rehype or remark plugins that run asynchronously.
 
+`MarkdownHooks` is the best fit for LLM-style streaming updates. When an intermediate update fails to render, the component preserves the last successful output and waits for the next valid update.
+
 **Props:**
 
-| Prop            | Type            | Required | Default | Description                             |
-| --------------- | --------------- | -------- | ------- | --------------------------------------- |
-| `text`          | `string`        | Yes      | -       | Markdown content to render              |
-| `components`    | `object`        | No       | `{}`    | Custom Vue components for HTML elements |
-| `remarkPlugins` | `RemarkPlugins` | No       | `[]`    | Remark plugins to process markdown      |
-| `rehypePlugins` | `RehypePlugins` | No       | `[]`    | Rehype plugins to transform HTML        |
+| Prop            | Type              | Required | Default    | Description                               |
+| --------------- | ----------------- | -------- | ---------- | ----------------------------------------- |
+| `text`          | `string`          | Yes      | -          | Markdown content to render                |
+| `components`    | `object`          | No       | `{}`       | Custom Vue components for HTML elements   |
+| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`       | Remark plugins to process markdown        |
+| `rehypePlugins` | `RehypePlugins`   | No       | `[]`       | Rehype plugins to transform HTML          |
+| `errorMode`     | `RenderErrorMode` | No       | `'silent'` | Controls how render failures are surfaced |
 
 **Events:**
 
-| Event            | Payload | Description                                |
-| ---------------- | ------- | ------------------------------------------ |
-| `content-loaded` | None    | Emitted when markdown processing completes |
+| Event            | Payload              | Description                                |
+| ---------------- | -------------------- | ------------------------------------------ |
+| `content-loaded` | None                 | Emitted when markdown processing completes |
+| `render-error`   | `RenderErrorPayload` | Emitted when markdown rendering fails      |
 
 **Slots:**
 
@@ -135,7 +157,30 @@ function onContentLoaded() {
 </template>
 ```
 
-**Note:** `MarkdownHooks` uses VueUse's `computedAsync` for reactive markdown processing.
+**Note:** `MarkdownHooks` uses reactive async rendering to update content as the `text` prop changes.
+
+**LLM Streaming Example:**
+
+```vue
+<script setup lang="ts">
+import { MarkdownHooks } from 'vuemarkik';
+import { ref } from 'vue';
+
+const llmOutput = ref('### First chunk');
+
+function reportMarkdownIssue(payload: { error: unknown; text: string }) {
+  console.debug('Intermediate markdown could not be rendered.', payload);
+}
+</script>
+
+<template>
+  <MarkdownHooks
+    :text="llmOutput"
+    error-mode="silent"
+    @render-error="reportMarkdownIssue"
+  />
+</template>
+```
 
 ---
 
@@ -257,6 +302,38 @@ import rehypeMermaid from 'rehype-mermaid';
 const plugins: RehypePlugins = [rehypeKatex, rehypeMermaid];
 ```
 
+#### errorMode
+
+- **Type:** `'silent' | 'warn' | 'throw'`
+- **Required:** No
+- **Default:** `'silent'`
+- **Description:** Controls how rendering failures are surfaced
+
+Use `'silent'` when rendering markdown that may be temporarily invalid, such as streamed LLM output. The component keeps the last successful render and emits `render-error` without writing to the console.
+
+Use `'warn'` while debugging to log a warning for each failed render. Use `'throw'` when you want failures to surface immediately, for example in tests.
+
+```ts twoslash
+import type { RenderErrorMode } from 'vuemarkik';
+// ---cut---
+const errorMode: RenderErrorMode = 'silent';
+```
+
+### Common Events
+
+#### render-error
+
+- **Payload:** `RenderErrorPayload`
+- **Description:** Fired when a markdown render attempt fails
+
+```ts twoslash
+import type { RenderErrorPayload } from 'vuemarkik';
+// ---cut---
+function onRenderError(payload: RenderErrorPayload) {
+  console.debug(payload.error, payload.text);
+}
+```
+
 ## Slots Reference
 
 ### Dynamic Slots
@@ -322,13 +399,19 @@ const markdown = '# Title\n\nA [link](https://example.com) here.';
 
 Choose the right component for your use case:
 
-| Component              | Use When                                                               |
-| ---------------------- | ---------------------------------------------------------------------- |
-| **Markdown**           | Default choice for most cases. Fast, synchronous rendering.            |
-| **MarkdownAsync**      | Using plugins with async operations. Requires `<Suspense>`.            |
-| **MarkdownHooks**      | Using plugins with async operations without depending on `<Suspense>`. |
-| **MarkdownChildNodes** | Rendering children in custom slots. Not used standalone.               |
+| Component              | Use When                                                    |
+| ---------------------- | ----------------------------------------------------------- |
+| **Markdown**           | Default choice for most cases. Fast, synchronous rendering. |
+| **MarkdownAsync**      | Using plugins with async operations. Requires `<Suspense>`. |
+| **MarkdownHooks**      | Async plugins, reactive updates, or streamed LLM output.    |
+| **MarkdownChildNodes** | Rendering children in custom slots. Not used standalone.    |
 
 ::: tip Recommendation
 If you are not using asynchronous plugins use with `Markdown`. If you need async support `MarkdownHooks` is recommended unless you are already using `Suspense` in your applications.
 :::
+
+::: tip Streaming Markdown
+For LLM-generated markdown, prefer `MarkdownHooks` with `error-mode="silent"`. If an intermediate chunk is temporarily invalid, VueMarkik keeps the last successful render and emits `render-error` so you can observe failures without flooding the console.
+:::
+
+See also: [Streaming Markdown](./streaming-markdown)

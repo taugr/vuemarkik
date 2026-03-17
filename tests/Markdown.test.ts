@@ -9,6 +9,8 @@ import {
   CustomParagraph,
   CustomLink,
   CustomStrong,
+  markdownRenderFailure,
+  throwingRemarkPlugin,
 } from './helpers';
 import remarkGfm from 'remark-gfm';
 
@@ -370,6 +372,65 @@ describe('Markdown Component', () => {
       // HTML entities are escaped in markdown
       expect(wrapper.text()).toContain('Text with');
       expect(wrapper.text()).toContain('characters');
+    });
+  });
+
+  describe('Render error handling', () => {
+    test('keeps the last successful render and emits render-error silently by default', async () => {
+      const consoleWarn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+
+      const wrapper = mount(Markdown, {
+        props: {
+          text: '# Stable heading',
+          remarkPlugins: [throwingRemarkPlugin],
+        },
+      });
+
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+
+      await wrapper.setProps({
+        text: markdownRenderFailure.text,
+      });
+
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+      expect(wrapper.emitted('render-error')).toHaveLength(1);
+      expect(consoleWarn).not.toHaveBeenCalled();
+    });
+
+    test('warn mode logs and keeps the last successful render', async () => {
+      const consoleWarn = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
+
+      const wrapper = mount(Markdown, {
+        props: {
+          text: '# Stable heading',
+          remarkPlugins: [throwingRemarkPlugin],
+          errorMode: 'warn',
+        },
+      });
+
+      await wrapper.setProps({
+        text: markdownRenderFailure.text,
+      });
+
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+      expect(wrapper.emitted('render-error')).toHaveLength(1);
+      expect(consoleWarn).toHaveBeenCalledTimes(1);
+    });
+
+    test('throw mode surfaces render failures', () => {
+      expect(() =>
+        mount(Markdown, {
+          props: {
+            text: markdownRenderFailure.text,
+            remarkPlugins: [throwingRemarkPlugin],
+            errorMode: 'throw',
+          },
+        }),
+      ).toThrow(markdownRenderFailure.message);
     });
   });
 });

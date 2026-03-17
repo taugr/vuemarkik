@@ -17,11 +17,13 @@ import CodeHighlightingExample from './CodeHighlightingExample.vue';
 import MermaidExample from './MermaidExample.vue';
 import GfmExample from './GfmExample.vue';
 import KatexExample from './KatexExample.vue';
+import RenderRecoveryExample from './RenderRecoveryExample.vue';
 
 const examples = [
   MarkdownSyncExample,
   MarkdownAsyncExample,
   MarkdownHooksExample,
+  RenderRecoveryExample,
   CustomComponentsExample,
   CustomTemplateExample,
   GfmExample,

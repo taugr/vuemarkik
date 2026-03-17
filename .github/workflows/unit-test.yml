@@ -29,10 +29,10 @@ jobs:
         run: pnpm run build
 
       - name: Lint
-        run: pnpm run lint
+        run: pnpm run quality:lint
 
       - name: Typecheck
-        run: pnpm run typecheck
+        run: pnpm run quality:typecheck
 
       - name: Test
         run: pnpm run test:coverage

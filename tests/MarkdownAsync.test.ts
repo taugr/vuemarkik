@@ -1,9 +1,38 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import type { VNode } from 'vue';
-import { defineComponent, h, Suspense } from 'vue';
+import {
+  defineComponent,
+  h,
+  onErrorCaptured,
+  onMounted,
+  ref,
+  Suspense,
+} from 'vue';
 import { MarkdownAsync } from '../src';
-import { markdownExamples, CustomHeading, CustomParagraph } from './helpers';
+import {
+  markdownExamples,
+  CustomHeading,
+  CustomParagraph,
+  markdownRenderFailure,
+  asyncThrowingRemarkPlugin,
+} from './helpers';
 import remarkGfm from 'remark-gfm';
+
+const slowRemarkPlugin = () => {
+  return async (_tree: unknown, file: { value?: unknown }) => {
+    const text = String(file.value ?? '');
+    const delay = text.includes('Initial') ? 30 : 0;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  };
+};
+
+const slowUpdatedRemarkPlugin = () => {
+  return async (_tree: unknown, file: { value?: unknown }) => {
+    const text = String(file.value ?? '');
+    const delay = text.includes('Initial') ? 30 : 50;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  };
+};
 
 describe('MarkdownAsync Component', () => {
   describe('Basic async rendering', () => {
@@ -393,6 +422,164 @@ describe('MarkdownAsync Component', () => {
       expect(wrapper.find('h1').text()).toBe('First');
       expect(wrapper.find('h2').text()).toBe('Second');
     });
+
+    test('ignores stale async renders when props change before the prior render completes', async () => {
+      const wrapper = mount(
+        defineComponent({
+          props: {
+            text: {
+              type: String,
+              required: true,
+            },
+          },
+          setup(props) {
+            return () =>
+              h(Suspense, null, {
+                default: () =>
+                  h(MarkdownAsync, {
+                    text: props.text,
+                    remarkPlugins: [slowRemarkPlugin],
+                  }),
+              });
+          },
+        }),
+        {
+          props: {
+            text: '# Initial',
+          },
+        },
+      );
+
+      await wrapper.setProps({ text: '# Updated' });
+      await flushPromises();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      await flushPromises();
+
+      expect(wrapper.find('h1').text()).toBe('Updated');
+    });
+
+    test('keeps the Suspense fallback visible until the latest render resolves', async () => {
+      const wrapper = mount(
+        defineComponent({
+          props: {
+            text: {
+              type: String,
+              required: true,
+            },
+          },
+          setup(props) {
+            return () =>
+              h(Suspense, null, {
+                default: () =>
+                  h(MarkdownAsync, {
+                    text: props.text,
+                    remarkPlugins: [slowUpdatedRemarkPlugin],
+                  }),
+                fallback: () =>
+                  h('div', { 'data-test': 'fallback' }, 'loading'),
+              });
+          },
+        }),
+        {
+          props: {
+            text: '# Initial',
+          },
+        },
+      );
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(true);
+
+      await wrapper.setProps({ text: '# Updated' });
+      await new Promise((resolve) => setTimeout(resolve, 35));
+      await flushPromises();
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      await flushPromises();
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(false);
+      expect(wrapper.find('h1').text()).toBe('Updated');
+    });
+
+    test('waits for a newer mount-time render before resolving async setup', async () => {
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const text = ref('# Initial');
+
+            onMounted(() => {
+              text.value = '# Updated';
+            });
+
+            return () =>
+              h(Suspense, null, {
+                default: () =>
+                  h(MarkdownAsync, {
+                    text: text.value,
+                    remarkPlugins: [slowUpdatedRemarkPlugin],
+                  }),
+                fallback: () =>
+                  h('div', { 'data-test': 'fallback' }, 'loading'),
+              });
+          },
+        }),
+      );
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 35));
+      await flushPromises();
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      await flushPromises();
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(false);
+      expect(wrapper.find('h1').text()).toBe('Updated');
+    });
+
+    test('keeps Suspense pending across multiple queued pre-mount updates', async () => {
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const text = ref('# Initial');
+
+            Promise.resolve().then(() => {
+              text.value = '# Updated once';
+            });
+            Promise.resolve().then(() => {
+              text.value = '# Updated twice';
+            });
+
+            return () =>
+              h(Suspense, null, {
+                default: () =>
+                  h(MarkdownAsync, {
+                    text: text.value,
+                    remarkPlugins: [slowUpdatedRemarkPlugin],
+                  }),
+                fallback: () =>
+                  h('div', { 'data-test': 'fallback' }, 'loading'),
+              });
+          },
+        }),
+      );
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 35));
+      await flushPromises();
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      await flushPromises();
+
+      expect(wrapper.find('[data-test="fallback"]').exists()).toBe(false);
+      expect(wrapper.find('h1').text()).toBe('Updated twice');
+    });
   });
 
   describe('Edge cases with async rendering', () => {
@@ -433,6 +620,107 @@ describe('MarkdownAsync Component', () => {
       // HTML entities are escaped in markdown
       expect(wrapper.text()).toContain('Text with');
       expect(wrapper.text()).toContain('characters');
+    });
+  });
+
+  describe('Render error handling', () => {
+    test('keeps the last successful render and emits render-error when a streamed update fails', async () => {
+      const onRenderError = vi.fn();
+
+      const wrapper = mount(
+        defineComponent({
+          props: {
+            text: {
+              type: String,
+              required: true,
+            },
+          },
+          setup(props) {
+            return () =>
+              h(Suspense, null, {
+                default: () =>
+                  h(MarkdownAsync, {
+                    text: props.text,
+                    remarkPlugins: [asyncThrowingRemarkPlugin],
+                    onRenderError,
+                  }),
+              });
+          },
+        }),
+        {
+          props: {
+            text: '# Stable heading',
+          },
+        },
+      );
+
+      await flushPromises();
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+
+      await wrapper.setProps({
+        text: markdownRenderFailure.text,
+      });
+      await flushPromises();
+
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+      expect(onRenderError).toHaveBeenCalledTimes(1);
+      expect(onRenderError.mock.calls[0][0].text).toBe(
+        markdownRenderFailure.text,
+      );
+    });
+
+    test('throw mode surfaces update failures to error boundaries', async () => {
+      const Host = defineComponent({
+        props: {
+          text: {
+            type: String,
+            required: true,
+          },
+        },
+        setup(props) {
+          const capturedMessage = ref<string | null>(null);
+
+          onErrorCaptured((error) => {
+            capturedMessage.value =
+              error instanceof Error ? error.message : String(error);
+            return false;
+          });
+
+          return () =>
+            h('div', [
+              h(
+                'span',
+                { 'data-test': 'captured' },
+                capturedMessage.value ?? '',
+              ),
+              h(Suspense, null, {
+                default: () =>
+                  h(MarkdownAsync, {
+                    text: props.text,
+                    remarkPlugins: [asyncThrowingRemarkPlugin],
+                    errorMode: 'throw',
+                  }),
+              }),
+            ]);
+        },
+      });
+
+      const wrapper = mount(Host, {
+        props: {
+          text: '# Stable heading',
+        },
+      });
+
+      await flushPromises();
+
+      await wrapper.setProps({
+        text: markdownRenderFailure.text,
+      });
+      await flushPromises();
+
+      expect(wrapper.get('[data-test="captured"]').text()).toBe(
+        markdownRenderFailure.message,
+      );
     });
   });
 });

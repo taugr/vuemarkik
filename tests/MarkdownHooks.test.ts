@@ -1,9 +1,23 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import type { VNode } from 'vue';
-import { h, nextTick } from 'vue';
+import { defineComponent, h, nextTick, onErrorCaptured, ref } from 'vue';
 import { MarkdownHooks } from '../src';
-import { markdownExamples, CustomHeading, CustomParagraph } from './helpers';
+import {
+  markdownExamples,
+  CustomHeading,
+  CustomParagraph,
+  markdownRenderFailure,
+  asyncThrowingRemarkPlugin,
+} from './helpers';
 import remarkGfm from 'remark-gfm';
+
+const slowRemarkPlugin = () => {
+  return async (_tree: unknown, file: { value?: unknown }) => {
+    const text = String(file.value ?? '');
+    const delay = text.includes('Initial') ? 30 : 0;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  };
+};
 
 describe('MarkdownHooks Component', () => {
   describe('Basic async rendering without Suspense', () => {
@@ -394,6 +408,106 @@ describe('MarkdownHooks Component', () => {
       await nextTick();
 
       expect(wrapper.find('h1').text()).toBe('Updated');
+    });
+
+    test('ignores stale async renders when text changes before the prior render completes', async () => {
+      const wrapper = mount(MarkdownHooks, {
+        props: {
+          text: '# Initial',
+          remarkPlugins: [slowRemarkPlugin],
+        },
+      });
+
+      await wrapper.setProps({ text: '# Updated' });
+      await flushPromises();
+      await new Promise((resolve) => setTimeout(resolve, 40));
+      await flushPromises();
+      await nextTick();
+
+      expect(wrapper.find('h1').text()).toBe('Updated');
+    });
+  });
+
+  describe('Render error handling', () => {
+    test('keeps the last successful render and emits render-error on failed updates', async () => {
+      const onRenderError = vi.fn();
+
+      const wrapper = mount(MarkdownHooks, {
+        props: {
+          text: '# Stable heading',
+          remarkPlugins: [asyncThrowingRemarkPlugin],
+          onRenderError,
+        },
+      });
+
+      await flushPromises();
+      await nextTick();
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+
+      await wrapper.setProps({
+        text: markdownRenderFailure.text,
+      });
+      await flushPromises();
+      await nextTick();
+
+      expect(wrapper.find('h1').text()).toBe('Stable heading');
+      expect(onRenderError).toHaveBeenCalledTimes(1);
+      expect(onRenderError.mock.calls[0][0].text).toBe(
+        markdownRenderFailure.text,
+      );
+    });
+
+    test('throw mode surfaces update failures to error boundaries', async () => {
+      const Host = defineComponent({
+        props: {
+          text: {
+            type: String,
+            required: true,
+          },
+        },
+        setup(props) {
+          const capturedMessage = ref<string | null>(null);
+
+          onErrorCaptured((error) => {
+            capturedMessage.value =
+              error instanceof Error ? error.message : String(error);
+            return false;
+          });
+
+          return () =>
+            h('div', [
+              h(
+                'span',
+                { 'data-test': 'captured' },
+                capturedMessage.value ?? '',
+              ),
+              h(MarkdownHooks, {
+                text: props.text,
+                remarkPlugins: [asyncThrowingRemarkPlugin],
+                errorMode: 'throw',
+              }),
+            ]);
+        },
+      });
+
+      const wrapper = mount(Host, {
+        props: {
+          text: '# Stable heading',
+        },
+      });
+
+      await flushPromises();
+      await nextTick();
+
+      await wrapper.setProps({
+        text: markdownRenderFailure.text,
+      });
+      await flushPromises();
+      await nextTick();
+
+      expect(wrapper.get('[data-test="captured"]').text()).toBe(
+        markdownRenderFailure.message,
+      );
     });
   });
 });

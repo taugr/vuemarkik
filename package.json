@@ -53,7 +53,11 @@
     "docs:preview": "vitepress preview docs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "quality": "pnpm -w run --parallel /^quality:.*/",
+    "quality:lint": "pnpm lint --max-warnings 0",
+    "quality:typecheck": "pnpm typecheck",
+    "quality:test": "pnpm test:coverage"
   },
   "peerDependencies": {
     "vue": "^3.0.0"

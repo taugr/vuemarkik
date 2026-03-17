@@ -120,3 +120,27 @@ export const CustomStrong = markRaw(
     },
   }),
 );
+
+const RENDER_FAILURE_TOKEN = '[[throw]]';
+
+export const markdownRenderFailure = {
+  token: RENDER_FAILURE_TOKEN,
+  text: `# ${RENDER_FAILURE_TOKEN}`,
+  message: 'synthetic render failure',
+};
+
+export const throwingRemarkPlugin = () => {
+  return (_tree: unknown, file: { value?: unknown }) => {
+    if (String(file.value ?? '').includes(RENDER_FAILURE_TOKEN)) {
+      throw new Error(markdownRenderFailure.message);
+    }
+  };
+};
+
+export const asyncThrowingRemarkPlugin = () => {
+  return async (_tree: unknown, file: { value?: unknown }) => {
+    if (String(file.value ?? '').includes(RENDER_FAILURE_TOKEN)) {
+      throw new Error(markdownRenderFailure.message);
+    }
+  };
+};

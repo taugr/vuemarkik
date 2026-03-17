@@ -14,6 +14,15 @@ export type RemarkPluginsProp = PropType<RemarkPlugins>;
 
 export type RehypePluginsProp = PropType<RehypePlugins>;
 
+export type RenderErrorMode = 'silent' | 'warn' | 'throw';
+
+export type RenderErrorModeProp = PropType<RenderErrorMode>;
+
+export interface RenderErrorPayload {
+  error: unknown;
+  text: string;
+}
+
 export type VueMarkSlots = SlotsType<{
   [TagName in keyof Components]: { childMarkdown: VNode };
 }>;
