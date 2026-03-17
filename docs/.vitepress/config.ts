@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from 'vitepress';
+import { defineConfig } from 'vitepress';
 import {
   groupIconMdPlugin,
   groupIconVitePlugin,
@@ -7,8 +7,12 @@ import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import pkg from '../../package.json';
+import llmstxt from 'vitepress-plugin-llms';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+type VitePlugins = NonNullable<
+  NonNullable<Parameters<typeof defineConfig>[0]['vite']>['plugins']
+>;
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -172,6 +176,8 @@ export default defineConfig({
     },
   },
   vite: {
-    plugins: [groupIconVitePlugin() as Plugin],
+    // VitePress currently resolves against a different Vite version than some plugins.
+    // The docs build is valid at runtime, so narrow the config to VitePress's expected plugin type here.
+    plugins: [groupIconVitePlugin(), llmstxt()] as unknown as VitePlugins,
   },
 });
