@@ -168,9 +168,9 @@ Instead of creating separate component files, you can use Vue template slots to 
 ```vue
 <template>
   <Markdown :text="markdown">
-    <template #h1="node">
+    <template #h1="{ childMarkdown }">
       <h1 class="custom-heading">
-        <MarkdownChildNodes :node="node" />
+        <MarkdownChildNodes :node="{ childMarkdown }" />
       </h1>
     </template>
   </Markdown>
@@ -196,7 +196,7 @@ This heading is styled with an inline template slot.
 </style>
 ```
 
-The `node` parameter contains the element's data, including `childMarkdown` which holds the rendered children. The `MarkdownChildNodes` component renders these children for you.
+Slot props always include `childMarkdown`, which contains the rendered children. `MarkdownChildNodes` renders those children for you, and other element props such as `href` are passed through alongside it.
 
 **Live Demo:**
 

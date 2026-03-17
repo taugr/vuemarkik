@@ -23,8 +23,13 @@ export interface RenderErrorPayload {
   text: string;
 }
 
+export interface VueMarkSlotProps {
+  childMarkdown: VNode;
+  [propName: string]: unknown;
+}
+
 export type VueMarkSlots = SlotsType<{
-  [TagName in keyof Components]: { childMarkdown: VNode };
+  [TagName in keyof Components]: VueMarkSlotProps;
 }>;
 
 export type MarkdownProp = PropType<Markdown>;

@@ -1,6 +1,6 @@
 # API Reference
 
-Complete reference for vuemarkik components, props, and slots.
+Complete reference for vuemarkik components, props, events, and slots.
 
 ## Components
 
@@ -22,13 +22,13 @@ If a render fails, `Markdown` preserves the last successful render by default. T
 
 **Events:**
 
-| Event          | Payload              | Description                           |
-| -------------- | -------------------- | ------------------------------------- |
-| `render-error` | `RenderErrorPayload` | Emitted when markdown rendering fails |
+| Event          | Payload              | Description                                                          |
+| -------------- | -------------------- | -------------------------------------------------------------------- |
+| `render-error` | `RenderErrorPayload` | Emitted when markdown rendering fails in `'silent'` or `'warn'` mode |
 
 **Slots:**
 
-All HTML element names (e.g., `h1`, `p`, `code`, `a`) can be used as slots. Each slot receives a `node` object containing `childMarkdown`.
+All HTML element names (e.g., `h1`, `p`, `code`, `a`) can be used as slots. Each slot receives `childMarkdown` plus the normal props for that element, such as `href` on links.
 
 **Usage:**
 
@@ -83,13 +83,13 @@ If an updated render fails, `MarkdownAsync` keeps the previous successful output
 
 **Events:**
 
-| Event          | Payload              | Description                           |
-| -------------- | -------------------- | ------------------------------------- |
-| `render-error` | `RenderErrorPayload` | Emitted when markdown rendering fails |
+| Event          | Payload              | Description                                                          |
+| -------------- | -------------------- | -------------------------------------------------------------------- |
+| `render-error` | `RenderErrorPayload` | Emitted when markdown rendering fails in `'silent'` or `'warn'` mode |
 
 **Slots:**
 
-All HTML element names can be used as slots. Each slot receives a `node` object containing `childMarkdown`.
+All HTML element names can be used as slots. Each slot receives `childMarkdown` plus the normal props for that element, such as `href` on links.
 
 **Usage:**
 
@@ -129,14 +129,14 @@ Reactive markdown renderer using Vue composables. Provides reactive updates and 
 
 **Events:**
 
-| Event            | Payload              | Description                                |
-| ---------------- | -------------------- | ------------------------------------------ |
-| `content-loaded` | None                 | Emitted when markdown processing completes |
-| `render-error`   | `RenderErrorPayload` | Emitted when markdown rendering fails      |
+| Event            | Payload              | Description                                                          |
+| ---------------- | -------------------- | -------------------------------------------------------------------- |
+| `content-loaded` | None                 | Emitted when markdown processing completes successfully              |
+| `render-error`   | `RenderErrorPayload` | Emitted when markdown rendering fails in `'silent'` or `'warn'` mode |
 
 **Slots:**
 
-All HTML element names can be used as slots. Each slot receives a `node` object containing `childMarkdown`.
+All HTML element names can be used as slots. Each slot receives `childMarkdown` plus the normal props for that element, such as `href` on links.
 
 **Usage:**
 
@@ -190,9 +190,9 @@ Utility component for rendering child nodes within custom slots.
 
 **Props:**
 
-| Prop   | Type     | Required | Default | Description                                  |
-| ------ | -------- | -------- | ------- | -------------------------------------------- |
-| `node` | `object` | No       | -       | Node object containing `childMarkdown` VNode |
+| Prop   | Type     | Required | Default | Description                                 |
+| ------ | -------- | -------- | ------- | ------------------------------------------- |
+| `node` | `object` | Yes      | -       | Object containing the `childMarkdown` VNode |
 
 **Usage:**
 
@@ -205,14 +205,14 @@ const markdown = '# Custom Styled Heading\n\nWith custom `code` too.';
 
 <template>
   <Markdown :text="markdown">
-    <template #h1="node">
+    <template #h1="{ childMarkdown }">
       <h1 class="custom-heading">
-        <MarkdownChildNodes :node="node" />
+        <MarkdownChildNodes :node="{ childMarkdown }" />
       </h1>
     </template>
-    <template #code="node">
+    <template #code="{ childMarkdown }">
       <code class="custom-code">
-        <MarkdownChildNodes :node="node" />
+        <MarkdownChildNodes :node="{ childMarkdown }" />
       </code>
     </template>
   </Markdown>
@@ -257,6 +257,8 @@ const markdown: string = '# Hello\n\nThis is markdown.';
 - **Required:** No
 - **Default:** `{}`
 - **Description:** Object mapping HTML element names to custom Vue components
+
+If you provide both `components` and a same-named slot for the same tag, the slot takes precedence.
 
 ```ts twoslash
 import { Markdown } from 'vuemarkik';
@@ -324,7 +326,7 @@ const errorMode: RenderErrorMode = 'silent';
 #### render-error
 
 - **Payload:** `RenderErrorPayload`
-- **Description:** Fired when a markdown render attempt fails
+- **Description:** Fired when a markdown render attempt fails in `'silent'` or `'warn'` mode. In `'throw'` mode the error is rethrown instead.
 
 ```ts twoslash
 import type { RenderErrorPayload } from 'vuemarkik';
@@ -333,6 +335,13 @@ function onRenderError(payload: RenderErrorPayload) {
   console.debug(payload.error, payload.text);
 }
 ```
+
+### MarkdownHooks Events
+
+#### content-loaded
+
+- **Payload:** None
+- **Description:** Fired after `MarkdownHooks` completes a successful async render
 
 ## Slots Reference
 
@@ -353,15 +362,14 @@ Any valid HTML element name can be used as a slot:
 
 **Slot Props:**
 
-Each slot receives a single prop `node`:
+Each slot receives a props object. `childMarkdown` is always present, and element-specific props are passed through as well:
 
 ```ts twoslash
 import { VNode } from 'vue';
 // ---cut---
 type SlotProps = {
-  node: {
-    childMarkdown: VNode;
-  };
+  childMarkdown: VNode;
+  [propName: string]: unknown;
 };
 ```
 
@@ -377,16 +385,20 @@ const markdown = '# Title\n\nA [link](https://example.com) here.';
 <template>
   <Markdown :text="markdown">
     <!-- Custom heading -->
-    <template #h1="node">
+    <template #h1="{ childMarkdown }">
       <h1 class="title">
-        <MarkdownChildNodes :node="node" />
+        <MarkdownChildNodes :node="{ childMarkdown }" />
       </h1>
     </template>
 
     <!-- Custom link -->
-    <template #a="node">
-      <a class="link" target="_blank">
-        <MarkdownChildNodes :node="node" />
+    <template #a="{ childMarkdown, href }">
+      <a
+        class="link"
+        :href="typeof href === 'string' ? href : undefined"
+        target="_blank"
+      >
+        <MarkdownChildNodes :node="{ childMarkdown }" />
       </a>
     </template>
   </Markdown>
