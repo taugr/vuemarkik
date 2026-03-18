@@ -99,7 +99,6 @@
     "vue-tsc": "^3.2.6"
   },
   "dependencies": {
-    "@vueuse/core": "^14.2.1",
     "hast-util-to-jsx-runtime": "^2.3.6",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",

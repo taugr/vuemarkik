@@ -136,7 +136,7 @@ describe('MarkdownHooks Component', () => {
       await nextTick();
 
       expect(wrapper.emitted('content-loaded')).toBeTruthy();
-      // computedAsync may trigger the event multiple times
+      // Rendering may emit more than once if a newer async pass supersedes an older one.
       expect(wrapper.emitted('content-loaded')!.length).toBeGreaterThanOrEqual(
         1,
       );
@@ -178,7 +178,6 @@ describe('MarkdownHooks Component', () => {
       await nextTick();
 
       expect(onContentLoaded).toHaveBeenCalled();
-      // computedAsync may trigger the event multiple times
       expect(onContentLoaded).toHaveBeenCalled();
     });
 
