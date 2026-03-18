@@ -1,197 +1,186 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to Codex and other coding agents working in this repository.
 
 ## Project Overview
 
-VueMarkik is a Vue 3 library for rendering markdown content safely without `dangerouslySetInnerHTML`. It uses the unified/remark/rehype ecosystem for markdown processing and renders output as Vue components using JSX runtime.
+VueMarkik is a Vue 3 library for rendering markdown safely without `v-html` or `dangerouslySetInnerHTML`. It uses the unified/remark/rehype pipeline and converts the resulting HAST tree into Vue VNodes with `hast-util-to-jsx-runtime`.
 
 ## Technology Stack
 
-- **Framework**: Vue 3 (Composition API)
-- **Language**: TypeScript (strict mode with `verbatimModuleSyntax: true`)
-- **Package Manager**: pnpm (required - never use npm or yarn)
-- **Build Tool**: tsdown (library bundler with DTS generation)
-- **Testing**: Vitest with Vue Test Utils and happy-dom
-- **Documentation**: VitePress 2.0 alpha
+- Framework: Vue 3
+- Language: TypeScript with `strict: true` and `verbatimModuleSyntax: true`
+- Package manager: pnpm only
+- Build tool: tsdown
+- Testing: Vitest, Vue Test Utils, happy-dom
+- Docs: VitePress 2 alpha
 
-## Common Commands
+## Commands
 
 ### Development
 
 ```bash
-pnpm install           # Install dependencies (use pnpm only)
-pnpm playground        # Run the playground with Vite for component testing
-pnpm dev               # Watch mode for building library
-pnpm test              # Run all tests once
-pnpm test:watch        # Run tests in watch mode
-pnpm typecheck         # Type check without emitting files
-pnpm lint              # Lint codebase
-pnpm lint:fix          # Fix lint errors
+pnpm install
+pnpm dev
+pnpm playground
+pnpm test
+pnpm test:watch
+pnpm test:coverage
+pnpm typecheck
+pnpm lint
+pnpm lint:fix
+pnpm quality
+pnpm quality:lint
+pnpm quality:typecheck
+pnpm quality:test
 ```
 
-### Building & Publishing
+### Docs and release
 
 ```bash
-pnpm build             # Build library to dist/
-pnpm docs:dev          # Start VitePress dev server for documentation
-pnpm docs:build        # Build documentation for production
-pnpm release           # Bump version and publish to npm
+pnpm build
+pnpm docs:dev
+pnpm docs:build
+pnpm docs:preview
+pnpm release
 ```
 
-### Testing Single Files
+### Targeted tests
 
 ```bash
-pnpm vitest tests/Markdown.test.ts          # Run specific test file
-pnpm vitest tests/Markdown.test.ts --watch  # Run in watch mode
+pnpm vitest tests/Markdown.test.ts
+pnpm vitest tests/Markdown.test.ts --watch
 ```
 
 ## Architecture
 
-### Core Components
+### Public exports
 
-VueMarkik exports four main components from [src/index.ts](src/index.ts):
+`src/index.ts` exports:
 
-1. **Markdown** ([src/Markdown.ts](src/Markdown.ts)) - Synchronous markdown renderer
-   - Uses `processor.runSync()` for immediate rendering
-   - Best for static content or when plugins are synchronous
+- `Markdown`
+- `MarkdownAsync`
+- `MarkdownHooks`
+- `MarkdownChildNodes`
+- `RemarkPlugins`
+- `RehypePlugins`
+- `RenderErrorMode`
+- `RenderErrorPayload`
 
-2. **MarkdownAsync** ([src/MarkdownAsync.ts](src/MarkdownAsync.ts)) - Async markdown renderer with Suspense support
-   - Uses `async setup()` with `await processor.run()`
-   - Required for async plugins like rehype-mermaid
-   - Works with Vue's `<Suspense>` boundary
+### Core components
 
-3. **MarkdownHooks** ([src/MarkdownHooks.ts](src/MarkdownHooks.ts)) - Reactive async renderer with lifecycle hooks
-   - Uses `computedAsync` from @vueuse/core
-   - Emits `content-loaded` event when rendering completes
-   - Reactively updates when `text` prop changes
+1. `src/Markdown.ts`
+   Synchronous renderer. Uses `renderMarkdownSync()` and watches props for rerendering.
 
-4. **MarkdownChildNodes** ([src/MarkdownChildNodes.ts](src/MarkdownChildNodes.ts)) - Helper for rendering child nodes in custom components
-   - Used when custom components need to render markdown children
-   - Receives `node` prop with `childMarkdown` VNode
+2. `src/MarkdownAsync.ts`
+   Async renderer intended for async plugin pipelines. Uses `async setup()` and keeps Suspense pending until the latest pre-mount render finishes.
 
-### Rendering Pipeline
+3. `src/MarkdownHooks.ts`
+   Reactive async renderer without Suspense. Uses `watch()` plus `shallowRef()` and emits `content-loaded` after successful async renders.
 
-The markdown processing pipeline ([src/rendering.ts](src/rendering.ts)):
+4. `src/MarkdownChildNodes.ts`
+   Helper for custom components that need to render nested markdown content passed through `childMarkdown`.
 
-```
-Input Text → VFile → remark-parse → remark plugins → remark-rehype → rehype plugins → HAST → toJsx() → Vue components
+### Rendering pipeline
+
+The main flow in `src/rendering.ts` is:
+
+```text
+markdown text
+  -> VFile
+  -> remark-parse
+  -> remark plugins
+  -> remark-rehype
+  -> rehype plugins
+  -> HAST
+  -> toJsxRuntime()
+  -> Vue VNodes
 ```
 
 Key functions:
 
-- **getProcessor()** - Creates unified processor with plugins
-- **createVFile()** - Wraps markdown text in VFile
-- **toJsx()** - Converts HAST to Vue JSX using `hast-util-to-jsx-runtime`
-  - Custom jsxRender function handles Vue component slot passing
-  - Renames `children` prop to `childMarkdown` for custom components
-  - Uses `markRaw()` to prevent Vue reactivity on static content
+- `getProcessor()` builds the unified processor from remark and rehype plugin lists.
+- `createVFile()` wraps the input text in a `VFile`.
+- `toJsx()` converts HAST to Vue-renderable output and wraps it in `markRaw()`.
+- `renderMarkdownSync()` and `renderMarkdownAsync()` centralize rendering and error handling.
 
-### Type System
+### Component customization
 
-All types are defined in [src/types.ts](src/types.ts):
+Rendering customization is supported through:
 
-- **ComponentsProp** - Type for `components` prop (Partial<Components> from hast-util-to-jsx-runtime)
-- **RemarkPluginsProp** - Type for `remarkPlugins` prop (PluggableList from unified)
-- **RehypePluginsProp** - Type for `rehypePlugins` prop (PluggableList from unified)
-- **VueMarkSlots** - Typed slots for custom element rendering
-- **MarkdownProp** - Alias for string markdown content
+1. `components` prop
+2. named slots keyed by tag name
+3. `remarkPlugins`
+4. `rehypePlugins`
 
-### Customization System
+Slots and `components` are merged at render time, with slots passed into the JSX runtime as component replacements.
 
-Users can customize rendering in three ways:
+### Custom component contract
 
-1. **components prop** - Pass Vue components to replace HTML elements
+Important details from `src/rendering.ts`:
 
-   ```vue
-   <Markdown :text="md" :components="{ h1: CustomHeading }" />
-   ```
+- `passNode: true` is enabled, so custom components receive the original HAST `node` prop.
+- For component replacements, `children` is renamed to `childMarkdown`.
+- The Vue-specific `jsxRender` helper calls `h()` for component types so slot content is preserved correctly.
 
-2. **slots** - Use Vue slots for inline customization
+If a custom component needs to render nested markdown content, use `MarkdownChildNodes` with the provided `childMarkdown` value.
 
-   ```vue
-   <Markdown :text="md">
-     <template #h1="{ childMarkdown }">
-       <h1 class="custom">{{ childMarkdown }}</h1>
-     </template>
-   </Markdown>
-   ```
+### Error handling
 
-3. **plugins** - Extend processing with remark/rehype plugins
-   ```vue
-   <Markdown
-     :text="md"
-     :remark-plugins="[remarkGfm]"
-     :rehype-plugins="[rehypeKatex]"
-   />
-   ```
+All three renderer components support `errorMode`:
 
-## Important Patterns
+- `'silent'`: swallow render failures and emit `render-error`
+- `'warn'`: log a warning and emit `render-error`
+- `'throw'`: rethrow the rendering error
 
-### Using Async Plugins
+`Markdown`, `MarkdownAsync`, and `MarkdownHooks` all emit `render-error` with `{ error, text }`. `MarkdownHooks` also emits `content-loaded` after a successful async render.
 
-When plugins need async operations (like rehype-mermaid for generating SVGs):
+## Types
 
-- Use `MarkdownAsync` (requires `<Suspense>` wrapper)
-- OR use `MarkdownHooks` (no Suspense needed, shows loading state)
-- Never use synchronous `Markdown` component with async plugins
+Types live in `src/types.ts`.
 
-### Custom Components with Children
+- `Markdown` is the source markdown string type.
+- `RemarkPlugins` and `RehypePlugins` are `PluggableList`.
+- `RenderErrorMode` is `'silent' | 'warn' | 'throw'`.
+- `VueMarkSlots` maps HTML tag names to slot props that include `childMarkdown`.
 
-When creating custom components that need to render markdown children:
-
-```vue
-<script setup>
-import { MarkdownChildNodes } from 'vuemarkik';
-const props = defineProps(['node', 'childMarkdown']);
-</script>
-
-<template>
-  <div class="custom-wrapper">
-    <MarkdownChildNodes :node="{ childMarkdown }" />
-  </div>
-</template>
-```
-
-### Vue JSX Rendering Fix
-
-The `jsxRender` function in [src/rendering.ts](src/rendering.ts:12-24) works around a Vue JSX limitation where slot content isn't passed correctly to components. It:
-
-1. Detects component types (object/function)
-2. Extracts children and passes as `childMarkdown` prop
-3. Returns h() with slot function instead of jsx() for components
+Prefer `import type` for type-only imports.
 
 ## Testing
 
-Tests use Vitest with Vue Test Utils. Key patterns:
+Tests live in `tests/` and use Vitest with `globals: true` and the `happy-dom` environment.
 
-- Test files in [tests/](tests/) directory
-- Helper utilities and fixtures in [tests/helpers.ts](tests/helpers.ts)
-- Mount components with `mount()` from @vue/test-utils
-- Test environment is happy-dom (not jsdom)
-- All tests run with `globals: true` so no need to import describe/test/expect
+Key patterns:
+
+- Use `mount()` from `@vue/test-utils`.
+- Reuse fixtures and helper plugins from `tests/helpers.ts`.
+- Coverage is configured with V8 and enforced at 100% for included `src/**/*.ts` files except `src/index.ts` and `src/types.ts`.
+
+After code changes, run the most relevant checks. For broad changes, prefer `pnpm quality`.
 
 ## Documentation
 
-Documentation uses VitePress 2.0 alpha:
+Documentation source lives in `docs/` and `docs/.vitepress/`.
 
-- Guide pages in [docs/guide/](docs/guide/)
-- API examples in [docs/api-examples.md](docs/api-examples.md)
-- Supports Shiki Twoslash for TypeScript code examples
-- Uses vitepress-plugin-group-icons for component documentation
+Important repo detail:
+
+- `docs/.vitepress/dist/` and `docs/.vitepress/cache/` are generated artifacts.
+- Do not hand-edit generated docs output unless the user explicitly asks for that.
+- Prefer editing source docs and config, then rebuilding if needed.
 
 ## Build Configuration
 
-- **tsdown.config.ts** - Library build with DTS generation, Vue support, platform-neutral output
-- **vite.config.ts** - Used by playground for development
-- **vitest.config.ts** - Test configuration with Vue plugin
-- **tsconfig.json** - Strict TypeScript with verbatimModuleSyntax
+- `tsdown.config.ts`: library build config, DTS generation enabled for Vue.
+- `vite.config.ts`: playground Vite config, rooted at `./playground`.
+- `vitest.config.ts`: happy-dom test environment and strict coverage thresholds.
+- `docs/.vitepress/config.ts`: docs site config, Twoslash setup, group-icons plugin, llms plugin.
 
-## Code Style
+## Code Style and Implementation Notes
 
-- Always use pnpm for package management
-- TypeScript strict mode - all types must be explicit
-- Prefer `import type` for type-only imports
-- Use `defineComponent` with setup function (not script setup for library components)
-- Set `inheritAttrs: false` on wrapper components to prevent style conflicts
-- Use `markRaw()` for static JSX output to prevent unnecessary reactivity
+- Always use pnpm, never npm or yarn.
+- Keep TypeScript explicit and compatible with strict mode.
+- Use `defineComponent()` for library components.
+- Wrapper renderer components intentionally set `inheritAttrs: false`.
+- Use `markRaw()` for rendered vnode trees and raw custom test components where needed.
+- Preserve the async stale-render protections in `MarkdownAsync` and `MarkdownHooks` when changing rerender logic.
+- Prefer updating source files over generated output.
