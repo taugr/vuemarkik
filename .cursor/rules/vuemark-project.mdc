@@ -55,6 +55,15 @@ VueMarkik is a Vue 3 library for rendering markdown. It uses the unified/remark/
 - `pnpm build` - Build the library
 - `pnpm test` - Run tests
 - `pnpm typecheck` - Type check without emitting
+- `pnpm check` - Run `oxlint`
+- `pnpm check:fix` - Apply `oxlint` autofixes
+- `pnpm fmt` - Check formatting with `oxfmt`
+- `pnpm fmt:fix` - Apply formatting with `oxfmt`
+- `pnpm quality` - Run `quality:*` checks in parallel
+- `pnpm quality:check` - Run lint checks with warnings denied
+- `pnpm quality:typecheck` - Run TypeScript checks
+- `pnpm quality:test` - Run coverage tests
+- `pnpm quality:fmt` - Run formatting checks
 
 ### Testing
 - Write tests in `tests/` directory
@@ -91,6 +100,8 @@ VueMarkik is a Vue 3 library for rendering markdown. It uses the unified/remark/
 - Main exports are in `src/index.ts`
 - Build output goes to `dist/` directory
 - The library is Vue 3 only (peer dependency)
+- Linting uses `oxlint` and formatting uses `oxfmt`
+- `lint-staged` runs `oxfmt --no-error-on-unmatched-pattern` on staged files
 - No `dangerouslySetInnerHTML` - all rendering is safe via JSX/Vue components
 - Support CommonMark, GFM (via remark-gfm), and MDX (via plugins)
 

@@ -27,12 +27,15 @@ pnpm test
 pnpm test:watch
 pnpm test:coverage
 pnpm typecheck
-pnpm lint
-pnpm lint:fix
+pnpm check
+pnpm check:fix
+pnpm fmt
+pnpm fmt:fix
 pnpm quality
-pnpm quality:lint
+pnpm quality:check
 pnpm quality:typecheck
 pnpm quality:test
+pnpm quality:fmt
 ```
 
 ### Docs and release
@@ -179,6 +182,10 @@ Important repo detail:
 
 - Always use pnpm, never npm or yarn.
 - Keep TypeScript explicit and compatible with strict mode.
+- Linting uses `oxlint` via `pnpm check`; autofixes use `pnpm check:fix`.
+- Formatting uses `oxfmt` via `pnpm fmt`; autofixes use `pnpm fmt:fix`.
+- `pnpm quality` runs `quality:check`, `quality:typecheck`, `quality:test`, and `quality:fmt` in parallel.
+- `lint-staged` runs `oxfmt --no-error-on-unmatched-pattern` on staged files.
 - Use `defineComponent()` for library components.
 - Wrapper renderer components intentionally set `inheritAttrs: false`.
 - Use `markRaw()` for rendered vnode trees and raw custom test components where needed.
