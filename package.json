@@ -36,7 +36,7 @@
     "access": "public"
   },
   "lint-staged": {
-    "*": "prettier --write --ignore-unknown"
+    "*": "oxfmt --no-error-on-unmatched-pattern"
   },
   "scripts": {
     "build": "tsdown",
@@ -51,19 +51,21 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "check": "oxlint",
+    "check:fix": "oxlint --fix",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
     "prepare": "husky",
     "quality": "pnpm -w run --parallel /^quality:.*/",
-    "quality:lint": "pnpm lint --max-warnings 0",
+    "quality:check": "pnpm check --deny-warnings",
     "quality:typecheck": "pnpm typecheck",
-    "quality:test": "pnpm test:coverage"
+    "quality:test": "pnpm test:coverage",
+    "quality:fmt": "pnpm fmt"
   },
   "peerDependencies": {
     "vue": "^3.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
     "@shikijs/rehype": "^4.0.2",
     "@shikijs/vitepress-twoslash": "^4.0.2",
     "@types/hast": "^3.0.4",
@@ -72,16 +74,15 @@
     "@vitest/coverage-v8": "^4.1.0",
     "@vue/test-utils": "^2.4.6",
     "bumpp": "^11.0.1",
-    "eslint": "^10.0.3",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-vue": "^10.8.0",
     "globals": "^17.4.0",
     "happy-dom": "^20.8.4",
     "husky": "^9.1.7",
     "katex": "^0.16.38",
     "lint-staged": "^16.4.0",
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.56.0",
+    "oxlint-tsgolint": "^0.17.1",
     "playwright": "^1.58.2",
-    "prettier": "3.8.1",
     "rehype-katex": "^7.0.1",
     "rehype-mermaid": "^3.0.0",
     "remark-gfm": "^4.0.1",
@@ -95,7 +96,6 @@
     "vitepress-plugin-llms": "^1.11.1",
     "vitest": "^4.1.0",
     "vue": "^3.5.30",
-    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.2.6"
   },
   "dependencies": {

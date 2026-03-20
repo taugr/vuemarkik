@@ -546,10 +546,10 @@ describe('MarkdownAsync Component', () => {
           setup() {
             const text = ref('# Initial');
 
-            Promise.resolve().then(() => {
+            void Promise.resolve().then(() => {
               text.value = '# Updated once';
             });
-            Promise.resolve().then(() => {
+            void Promise.resolve().then(() => {
               text.value = '# Updated twice';
             });
 
