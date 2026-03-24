@@ -79,7 +79,7 @@
     "husky": "^9.1.7",
     "katex": "^0.16.38",
     "lint-staged": "^16.4.0",
-    "oxfmt": "^0.41.0",
+    "oxfmt": "^0.42.0",
     "oxlint": "^1.56.0",
     "oxlint-tsgolint": "^0.17.1",
     "playwright": "^1.58.2",
