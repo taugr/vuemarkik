@@ -34,5 +34,11 @@
       // Cron: Every Monday during days 15-21 (contains 3rd Monday)
       schedule: ['* * 15-21 * 1'],
     },
+    {
+      description: 'Group minor/patch devDependencies into one PR; majors stay one PR per package',
+      matchDepTypes: ['devDependencies'],
+      matchUpdateTypes: ['minor', 'patch'],
+      groupName: 'dev dependencies',
+    },
   ],
 }
