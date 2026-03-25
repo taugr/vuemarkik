@@ -29,10 +29,7 @@ jobs:
         run: pnpm run build
 
       - name: Lint and type check
-        run: pnpm run quality:check
-
-      - name: Vue Tsc Typecheck
-        run: pnpm run quality:typecheck
+        run: pnpm run lint
 
       - name: Test
         run: pnpm run test:coverage

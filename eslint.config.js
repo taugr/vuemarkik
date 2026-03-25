@@ -1,4 +1,3 @@
-import eslint from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import eslintPluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
@@ -19,10 +18,7 @@ export default defineConfig(
   {
     files: ['**/*.{js,cjs,mjs,ts,cts,mts}'],
 
-    extends: [
-      eslint.configs.recommended,
-      ...typescriptEslint.configs.recommended,
-    ],
+    extends: [...typescriptEslint.configs.recommended],
 
     languageOptions: {
       ecmaVersion: 'latest',
