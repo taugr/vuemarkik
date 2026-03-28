@@ -21,12 +21,17 @@
       matchDepTypes: [
         'dependencies',
         'peerDependencies',
-        'devDependencies',
         'pnpm.catalog',
         'pnpm.catalog.*',
       ],
       // Cron: Every day in the morning (minute hour day month weekday)
       schedule: ['* 0-12 * * *'],
+    },
+    {
+      description: 'Update devDependencies every Saturday morning',
+      matchDepTypes: ['devDependencies'],
+      // Cron: Every Saturday in the morning (minute hour day month weekday)
+      schedule: ['* 0-12 * * 6'],
     },
     {
       description: 'Update GitHub Actions workflows on 3rd Monday of the month',
