@@ -40,10 +40,12 @@
       schedule: ['* * 15-21 * 1'],
     },
     {
-      description: 'Group minor/patch devDependencies into one PR; majors stay one PR per package',
+      description: 'Group and automerge non-major devDependencies updates; majors stay one PR per package',
       matchDepTypes: ['devDependencies'],
       matchUpdateTypes: ['minor', 'patch'],
       groupName: 'dev dependencies',
+      automerge: true,
+      automergeType: 'pr',
     },
   ],
 }
