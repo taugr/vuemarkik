@@ -34,6 +34,12 @@
       schedule: ['* 0-12 * * 6'],
     },
     {
+      description: 'Update pnpm every Saturday morning',
+      matchDepNames: ['pnpm'],
+      // Cron: Every Saturday in the morning (minute hour day month weekday)
+      schedule: ['* 0-12 * * 6'],
+    },
+    {
       description: 'Update GitHub Actions workflows on 3rd Monday of the month',
       matchFileNames: ['.github/workflows/**'],
       // Cron: Every Monday during days 15-21 (contains 3rd Monday)
@@ -44,6 +50,13 @@
       matchDepTypes: ['devDependencies'],
       matchUpdateTypes: ['minor', 'patch'],
       groupName: 'dev dependencies',
+      automerge: true,
+      automergeType: 'pr',
+    },
+    {
+      description: 'Automerge non-major pnpm updates like devDependencies',
+      matchDepNames: ['pnpm'],
+      matchUpdateTypes: ['minor', 'patch'],
       automerge: true,
       automergeType: 'pr',
     },
