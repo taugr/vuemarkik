@@ -5,7 +5,7 @@
   // Extend from recommended base configuration
   extends: ['config:recommended', ':disableDependencyDashboard'],
 
-  // Timezone for schedules (adjust as needed)
+  // Timezone for schedules
   timezone: 'Asia/Yerevan',
 
   // Fallback schedule for anything without a specific schedule
@@ -35,7 +35,8 @@
     },
     {
       description: 'Update pnpm every Saturday morning',
-      matchDepNames: ['pnpm'],
+      matchDepTypes: ['packageManager'],
+      matchPackageNames: ['pnpm'],
       // Cron: Every Saturday in the morning (minute hour day month weekday)
       schedule: ['* 0-12 * * 6'],
     },
@@ -45,20 +46,25 @@
       // Cron: Every Monday during days 15-21 (contains 3rd Monday)
       schedule: ['* * 15-21 * 1'],
     },
+
     {
-      description: 'Group and automerge non-major devDependencies updates; majors stay one PR per package',
-      matchDepTypes: ['devDependencies'],
-      matchUpdateTypes: ['minor', 'patch'],
-      groupName: 'dev dependencies',
+      description: 'Auto-merge pnpm updates',
+      matchPackageNames: ['pnpm'],
+      matchUpdateTypes: ['minor', 'patch', 'digest'],
       automerge: true,
       automergeType: 'pr',
     },
     {
-      description: 'Automerge non-major pnpm updates like devDependencies',
-      matchDepNames: ['pnpm'],
-      matchUpdateTypes: ['minor', 'patch'],
+      description: 'Auto-merge devDependencies',
+      matchDepTypes: ['devDependencies'],
       automerge: true,
       automergeType: 'pr',
+    },
+    {
+      description: 'Group non-major devDependencies; majors stay one PR per package',
+      matchDepTypes: ['devDependencies'],
+      matchUpdateTypes: ['minor', 'patch', 'digest'],
+      groupName: 'dev dependencies',
     },
   ],
 }
