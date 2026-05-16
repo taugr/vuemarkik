@@ -62,4 +62,4 @@ Tests use Vitest with Vue Test Utils. Place test files in [tests/](tests/) and u
 ## Questions?
 
 - Check the [documentation](https://vuemarkik.dev)
-- Open an [issue](https://github.com/tom-auger/vuemarkik/issues) for discussion
+- Open an [issue](https://github.com/taugr/vuemarkik/issues) for discussion

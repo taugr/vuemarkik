@@ -160,4 +160,4 @@ pnpm build
 
 ## License
 
-MIT © 2025-present [Tom Auger](https://github.com/tom-auger)
+MIT © 2025-present [Tom Auger](https://github.com/taugr)

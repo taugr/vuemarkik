@@ -17,7 +17,7 @@ hero:
       link: /guide/
     - theme: alt
       text: View on GitHub
-      link: https://github.com/tom-auger/vuemarkik
+      link: https://github.com/taugr/vuemarkik
 
 features:
   - title: Compliant
