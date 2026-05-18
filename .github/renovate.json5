@@ -17,7 +17,7 @@
   // Package rules for different update schedules
   packageRules: [
     {
-      description: 'Update dependencies every weekday morning',
+      description: 'Update dependencies every morning',
       matchDepTypes: [
         'dependencies',
         'peerDependencies',
@@ -45,10 +45,11 @@
       matchFileNames: ['.github/workflows/**'],
       // Cron: Every Monday during days 15-21 (contains 3rd Monday)
       schedule: ['* * 15-21 * 1'],
+      automerge: true,
+      automergeType: 'pr',
     },
-
     {
-      description: 'Auto-merge pnpm updates',
+      description: 'Automerge non-major pnpm updates like devDependencies',
       matchPackageNames: ['pnpm'],
       matchUpdateTypes: ['minor', 'patch', 'digest'],
       automerge: true,
