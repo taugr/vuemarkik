@@ -6,7 +6,7 @@ enableGlobalVirtualStore: true
 packageExtensions:
   langium@4.2.1:
     dependencies:
-      "@chevrotain/regexp-to-ast": 11.1.2
+      '@chevrotain/regexp-to-ast': 11.1.2
       vscode-jsonrpc: 8.2.0
       vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-types: 3.17.5
