@@ -14,8 +14,19 @@
   // Labels for GitHub PRs
   labels: ['dependencies'],
 
-  // Package rules for different update schedules
+  // Match pnpm's strict one-day package-age guardrail for npm updates.
+  // Lockfile maintenance, package replacement, and package pinning updates still
+  // need pnpm enforcement or manual confirmation because Renovate cannot fully
+  // validate every path where those update types can introduce fresh packages.
   packageRules: [
+    {
+      description: 'Wait one day before npm package updates',
+      matchDatasources: ['npm'],
+      minimumReleaseAge: '1 day',
+      internalChecksFilter: 'strict',
+    },
+
+    // Package rules for different update schedules
     {
       description: 'Update dependencies every morning',
       matchDepTypes: [
@@ -26,6 +37,13 @@
       ],
       // Cron: Every day in the morning (minute hour day month weekday)
       schedule: ['* 0-12 * * *'],
+    },
+    {
+      description: 'Automerge non-major runtime and peer dependency updates',
+      matchDepTypes: ['dependencies', 'peerDependencies'],
+      matchUpdateTypes: ['minor', 'patch', 'digest'],
+      automerge: true,
+      automergeType: 'pr',
     },
     {
       description: 'Update devDependencies every Saturday morning',
@@ -44,7 +62,7 @@
       description: 'Update GitHub Actions workflows on 3rd Monday of the month',
       matchFileNames: ['.github/workflows/**'],
       // Cron: Every Monday during days 15-21 (contains 3rd Monday)
-      schedule: ['* * 15-21 * 1'],
+      schedule: ['* 0-12 15-21 * 1'],
       automerge: true,
       automergeType: 'pr',
     },

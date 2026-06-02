@@ -1,7 +1,13 @@
 allowBuilds:
   esbuild: true
 
+blockExoticSubdeps: true
+
 enableGlobalVirtualStore: true
+
+minimumReleaseAge: 1440
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
 
 packageExtensions:
   langium@4.2.1:
