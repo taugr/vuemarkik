@@ -13,6 +13,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 type VitePlugins = NonNullable<
   NonNullable<Parameters<typeof defineConfig>[0]['vite']>['plugins']
 >;
+type CodeTransformers = NonNullable<
+  NonNullable<
+    Parameters<typeof defineConfig>[0]['markdown']
+  >['codeTransformers']
+>;
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -158,6 +163,8 @@ export default defineConfig({
     },
   },
   markdown: {
+    // VitePress alpha.17 bundles Shiki 3 types while the latest Twoslash
+    // transformer uses Shiki 4; the runtime contract remains compatible.
     codeTransformers: [
       transformerTwoslash({
         twoslashOptions: {
@@ -169,7 +176,7 @@ export default defineConfig({
           },
         },
       }),
-    ],
+    ] as unknown as CodeTransformers,
     languages: ['js', 'jsx', 'ts', 'tsx', 'vue'],
     config(md) {
       md.use(groupIconMdPlugin);
