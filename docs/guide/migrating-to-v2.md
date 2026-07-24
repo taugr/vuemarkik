@@ -6,10 +6,10 @@ properties, classes, and styles outside the safe schema are removed.
 
 ## Upgrade and run your tests
 
-Install the prerelease while evaluating the migration:
+Install VueMarkik v2:
 
 ```sh
-pnpm add vuemarkik@next
+pnpm add vuemarkik@^2
 ```
 
 Exercise every markdown source, plugin, custom component, slot, browser-rendered

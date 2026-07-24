@@ -1,6 +1,6 @@
 # VueMarkik Security Hardening Plan
 
-- Status: In implementation
+- Status: Implemented
 - Target releases: `v1.2.2` security patch, followed by `v2.0.0`
 - Scope: Rendering untrusted markdown safely through the existing unified, remark, rehype, HAST, and Vue pipeline
 
@@ -12,10 +12,12 @@ Updated 2026-07-24:
 - The URL policy, shared renderer coverage, SSR exploit regression, empty-output
   fix, security guide, GitHub release, and deployed documentation are complete.
 - The `v2` safe/trusted implementation, final-HAST sanitizer, migration guide,
-  plugin compatibility suite, and bounded input regressions are complete
-  locally.
-- `v2.0.0-beta.1` packed-consumer verification, publication, deployed-docs
-  verification, and the final promotion gate remain.
+  plugin compatibility suite, and bounded input regressions are complete.
+- `v2.0.0-beta.1` is published under `next` and independently verified from
+  the registry with runtime, TypeScript, exploit, SSR, and real plugin consumer
+  checks.
+- The final `v2.0.0` candidate is the same proven implementation with stable
+  release metadata.
 
 Resolved design decisions:
 
