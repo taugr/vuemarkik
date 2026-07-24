@@ -67,8 +67,13 @@ pnpm vitest tests/Markdown.test.ts --watch
 - `MarkdownChildNodes`
 - `RemarkPlugins`
 - `RehypePlugins`
+- `SecurityMode`
+- `SanitizeSchema`
+- `UrlTransform`
 - `RenderErrorMode`
 - `RenderErrorPayload`
+- `defaultSanitizeSchema`
+- `defaultUrlTransform`
 
 ### Core components
 
@@ -96,6 +101,8 @@ markdown text
   -> remark-rehype
   -> rehype plugins
   -> HAST
+  -> final HAST sanitization in safe mode
+  -> URL transformation
   -> toJsxRuntime()
   -> Vue VNodes
 ```
@@ -115,6 +122,7 @@ Rendering customization is supported through:
 2. named slots keyed by tag name
 3. `remarkPlugins`
 4. `rehypePlugins`
+5. `securityMode`, `sanitizeSchema`, and `urlTransform`
 
 Slots and `components` are merged at render time, with slots passed into the JSX runtime as component replacements.
 
@@ -145,6 +153,9 @@ Types live in `src/types.ts`.
 - `Markdown` is the source markdown string type.
 - `RemarkPlugins` and `RehypePlugins` are `PluggableList`.
 - `RenderErrorMode` is `'silent' | 'warn' | 'throw'`.
+- `SecurityMode` is `'safe' | 'trusted'`.
+- `SanitizeSchema` configures final-HAST sanitization.
+- `UrlTransform` filters or rewrites URL-bearing properties.
 - `VueMarkSlots` maps HTML tag names to slot props that include `childMarkdown`.
 
 Prefer `import type` for type-only imports.

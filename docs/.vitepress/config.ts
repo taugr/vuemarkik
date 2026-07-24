@@ -80,6 +80,7 @@ export default defineConfig({
           { text: 'What is VueMarkik?', link: '/guide' },
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Security', link: '/guide/security' },
+          { text: 'Migrating to v2', link: '/guide/migrating-to-v2' },
           { text: 'Customization', link: '/guide/remark-rehype-plugins' },
           { text: 'Examples', link: '/guide/github-flavored-markdown' },
         ],
@@ -116,6 +117,7 @@ export default defineConfig({
             { text: 'What is VueMarkik?', link: '/guide/' },
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Security', link: '/guide/security' },
+            { text: 'Migrating to v2', link: '/guide/migrating-to-v2' },
           ],
         },
         {

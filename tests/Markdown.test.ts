@@ -337,6 +337,7 @@ describe('Markdown Component', () => {
         props: {
           text: markdownExamples.paragraph,
           rehypePlugins: [rehypeAddClass],
+          securityMode: 'trusted',
         },
       });
 

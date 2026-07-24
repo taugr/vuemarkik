@@ -25,7 +25,7 @@ features:
     details: 100% support for CommonMark, with GFM and MDX supported through plugins.
   - title: Safe
     icon: 🛡️
-    details: Builds Vue VNodes without dangerouslySetInnerHTML, keeps raw HTML disabled, and filters unsafe URL protocols.
+    details: Sanitizes final HAST after plugins, builds Vue VNodes without dangerouslySetInnerHTML, and keeps raw HTML disabled.
   - title: Customizable
     icon: 🧩
     details: Create your own Vue components to customize rendering, e.g. pass your own component instead of &lt;h1&gt; for &num; hola.

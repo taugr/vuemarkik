@@ -2,6 +2,9 @@ import { h, markRaw } from 'vue';
 import { jsx, Fragment } from 'vue/jsx-runtime';
 import { toJsxRuntime, type Components } from 'hast-util-to-jsx-runtime';
 import { urlAttributes } from 'html-url-attributes';
+import rehypeSanitize, {
+  defaultSchema as rehypeDefaultSchema,
+} from 'rehype-sanitize';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 import remarkParse from 'remark-parse';
@@ -9,9 +12,22 @@ import remarkRehype from 'remark-rehype';
 import type { PluggableList } from 'unified';
 import type { Element, Nodes } from 'hast';
 import { VFile } from 'vfile';
-import type { RenderErrorMode, UrlTransform } from './types';
+import type {
+  RenderErrorMode,
+  SanitizeSchema,
+  SecurityMode,
+  UrlTransform,
+} from './types';
 
 const safeProtocol = /^(https?|mailto|tel)$/i;
+
+export const defaultSanitizeSchema: SanitizeSchema = {
+  ...rehypeDefaultSchema,
+  protocols: {
+    ...rehypeDefaultSchema.protocols,
+    href: [...(rehypeDefaultSchema.protocols!.href as Array<string>), 'tel'],
+  },
+};
 
 export const defaultUrlTransform = (url: string): string | undefined => {
   const colon = url.indexOf(':');
@@ -95,12 +111,28 @@ export const toJsx = (tree: Nodes, components: Partial<Components>) => {
 export const getProcessor = (
   remarkPlugins: PluggableList,
   rehypePlugins: PluggableList,
-) =>
-  unified()
+) => {
+  return unified()
     .use(remarkParse)
     .use(remarkPlugins)
     .use(remarkRehype)
     .use(rehypePlugins);
+};
+
+const getSecureProcessor = (
+  remarkPlugins: PluggableList,
+  rehypePlugins: PluggableList,
+  securityMode: SecurityMode,
+  sanitizeSchema: SanitizeSchema,
+) => {
+  const processor = getProcessor(remarkPlugins, rehypePlugins);
+
+  if (securityMode === 'safe') {
+    processor.use(rehypeSanitize, sanitizeSchema);
+  }
+
+  return processor;
+};
 
 export const createVFile = (text: string) => new VFile(text);
 
@@ -126,6 +158,8 @@ interface RenderMarkdownOptions {
   components: Partial<Components>;
   remarkPlugins: PluggableList;
   rehypePlugins: PluggableList;
+  securityMode: SecurityMode;
+  sanitizeSchema: SanitizeSchema;
   urlTransform: UrlTransform;
   errorMode: RenderErrorMode;
 }
@@ -147,11 +181,18 @@ export const renderMarkdownSync = ({
   components,
   remarkPlugins,
   rehypePlugins,
+  securityMode,
+  sanitizeSchema,
   urlTransform,
   errorMode,
 }: RenderMarkdownOptions): RenderResult => {
   try {
-    const processor = getProcessor(remarkPlugins, rehypePlugins);
+    const processor = getSecureProcessor(
+      remarkPlugins,
+      rehypePlugins,
+      securityMode,
+      sanitizeSchema,
+    );
     const file = createVFile(text);
     const tree = processor.runSync(processor.parse(file), file);
     transformUrls(tree, urlTransform);
@@ -175,11 +216,18 @@ export const renderMarkdownAsync = async ({
   components,
   remarkPlugins,
   rehypePlugins,
+  securityMode,
+  sanitizeSchema,
   urlTransform,
   errorMode,
 }: RenderMarkdownOptions): Promise<RenderResult> => {
   try {
-    const processor = getProcessor(remarkPlugins, rehypePlugins);
+    const processor = getSecureProcessor(
+      remarkPlugins,
+      rehypePlugins,
+      securityMode,
+      sanitizeSchema,
+    );
     const file = createVFile(text);
     const tree = await processor.run(processor.parse(file), file);
     transformUrls(tree, urlTransform);

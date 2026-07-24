@@ -31,6 +31,12 @@ mindmap
 
 Mermaid lets you describe flow charts, sequence diagrams, mind maps, and more using a compact text syntax. VueMarkik can render these diagrams by adding the `rehype-mermaid` plugin to your Markdown pipeline.
 
+::: warning Security mode
+Mermaid's rendered SVG and data-URL output is intentionally outside the
+default safe schema. The examples on this page use
+`security-mode="trusted"` and should only render trusted diagram source.
+:::
+
 ## Install rehype-mermaid
 
 ::: code-group
@@ -63,7 +69,11 @@ Once the plugin is installed, pass it to `MarkdownHooks` (or `MarkdownAsync`) th
 
 ```vue
 <template>
-  <MarkdownHooks :text="diagram" :rehype-plugins="rehypePlugins" />
+  <MarkdownHooks
+    :text="diagram"
+    :rehype-plugins="rehypePlugins"
+    security-mode="trusted"
+  />
 </template>
 
 <script setup lang="ts">
@@ -99,7 +109,11 @@ This renders as:
 <MarkdownExample>
 
 ::: raw
-<MarkdownHooks :text="diagram" :rehype-plugins="rehypePlugins" />
+<MarkdownHooks
+  :text="diagram"
+  :rehype-plugins="rehypePlugins"
+  security-mode="trusted"
+/>
 :::
 
 </MarkdownExample>

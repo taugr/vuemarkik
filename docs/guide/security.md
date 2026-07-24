@@ -1,54 +1,99 @@
 # Security
 
-VueMarkik builds Vue VNodes from markdown without using `v-html` or
-`dangerouslySetInnerHTML`. Raw HTML in markdown is disabled, and URL-bearing
-properties pass through a protocol policy immediately before the HAST tree is
-converted to Vue output.
+VueMarkik is safe by default for untrusted markdown under the boundary
+documented here. It keeps raw HTML disabled, runs user-configured remark and
+rehype plugins, sanitizes their final HAST output, applies a URL policy, and
+only then converts the tree to Vue VNodes without `v-html` or
+`dangerouslySetInnerHTML`.
 
-Those protections reduce the attack surface, but they are not the same as
-sanitizing every element and property. This page defines the security boundary
-for VueMarkik 1.x.
+## Safe mode
 
-## Default protections
+`securityMode="safe"` is the default for `Markdown`, `MarkdownAsync`, and
+`MarkdownHooks`.
 
-The default renderer:
+The rendering pipeline is:
 
-- Parses CommonMark without enabling raw HTML.
-- Does not evaluate scripts from the markdown source.
-- Converts HAST to Vue VNodes instead of injecting an HTML string.
-- Filters URL-bearing HAST properties after user-configured remark and rehype
-  plugins have run.
-- Allows relative URLs, fragment URLs, query URLs, and the `http`, `https`,
-  `mailto`, and `tel` protocols.
-- Removes URL properties using other explicit protocols, including
-  `javascript`, `vbscript`, and `data`.
-
-The same policy is used by `Markdown`, `MarkdownAsync`, and `MarkdownHooks`, in
-browser and server rendering.
-
-For example, this content renders a link without an `href`:
-
-```md
-[do not run](<javascript:alert(1)>)
+```text
+markdown
+  -> remark parser and plugins
+  -> remark-rehype
+  -> rehype plugins
+  -> final HAST sanitizer
+  -> URL transform
+  -> Vue VNodes
 ```
 
-## Trusted application code
+The final sanitizer uses `rehype-sanitize` with a GitHub-style allowlist. It:
 
-The following inputs are code or configuration supplied by the host
-application and must be trusted:
+- Allows normal CommonMark and GFM elements and properties.
+- Removes scripting, embedded browsing contexts, event properties, inline
+  styles, and unknown metadata.
+- Prefixes DOM-clobbering `id` and `name` values.
+- Restricts URL protocols.
+- Sanitizes the HAST node and properties passed to custom components and slots.
 
-- Remark and rehype plugins.
-- Custom Vue components and named slots.
-- A custom `urlTransform`.
+The default URL policy allows relative, fragment, query, `http`, `https`,
+`mailto`, and `tel` URLs. Other explicit protocols, including `javascript`,
+`vbscript`, and `data`, are removed.
 
-VueMarkik 1.x filters known URL-bearing properties after plugins run, but it
-does not fully sanitize arbitrary elements, event properties, embedded content,
-CSS, or other HAST a plugin may introduce. A plugin can therefore expand the
-security boundary even when the markdown string itself is untrusted.
+## Trusted mode
 
-Review plugin security guidance and keep plugins current. If a plugin accepts
-its own HTML, template, diagram, or configuration language, apply that plugin's
-security controls too.
+Use trusted mode only when both the markdown and the configured plugins are
+trusted:
+
+```vue
+<Markdown :text="trustedMarkdown" security-mode="trusted" />
+```
+
+Trusted mode skips final-HAST sanitization and preserves legacy plugin output.
+The URL policy still runs, and raw HTML in markdown remains disabled.
+
+This mode exists for compatibility with plugins such as Shiki, KaTeX, and
+Mermaid that generate broad classes, inline styles, SVG, or data URLs. It is
+not a safe fallback for arbitrary user content.
+
+## Plugin compatibility
+
+| Integration              | Safe mode                                                              | Trusted mode            |
+| ------------------------ | ---------------------------------------------------------------------- | ----------------------- |
+| CommonMark               | Preserved                                                              | Preserved               |
+| GitHub Flavored Markdown | Preserved by the default schema                                        | Preserved               |
+| Shiki                    | Code remains readable; highlighting classes and styles are removed     | Full highlighted output |
+| KaTeX                    | Math text remains readable; typesetting classes and styles are removed | Full typeset output     |
+| Mermaid                  | Diagram source remains; rendered/enhanced output is removed            | Full plugin output      |
+
+Plugin code always executes with the host application's privileges. Final-HAST
+sanitization controls its rendered output; it does not sandbox the plugin
+itself.
+
+## Custom schemas
+
+All renderers accept `sanitizeSchema`. Start from the exported default rather
+than replacing it accidentally:
+
+```ts
+import { defaultSanitizeSchema, type SanitizeSchema } from 'vuemarkik';
+
+const schema: SanitizeSchema = {
+  ...defaultSanitizeSchema,
+  attributes: {
+    ...defaultSanitizeSchema.attributes,
+    code: [
+      ...(defaultSanitizeSchema.attributes?.code ?? []),
+      ['className', 'language-javascript'],
+    ],
+  },
+};
+```
+
+```vue
+<Markdown :text="markdown" :sanitize-schema="schema" />
+```
+
+A custom schema changes the security boundary. In particular, do not broadly
+allow `style`, event properties, scripts, embedded browsing contexts, SVG, or
+data URLs merely to preserve a plugin's appearance. Prefer a narrowly tested
+allowlist or trusted mode for content that is genuinely trusted.
 
 ## Custom URL policies
 
@@ -73,11 +118,12 @@ const allowOnlyLocalUrls: UrlTransform = (url) => {
 ```
 
 The callback receives the URL value, HAST property name, and a read-only
-TypeScript view of the HAST element. Return a string to keep or rewrite the
-property. Return `undefined` to remove it.
+TypeScript view of the current HAST element, which has been sanitized in safe
+mode. Return a string to keep or rewrite the property, or `undefined` to remove
+it.
 
-A custom transform replaces the default policy. If you want to extend the
-default instead, call it first:
+A custom transform replaces the default URL policy and therefore changes the
+security boundary. To extend the default safely, call it first:
 
 ```ts
 import { defaultUrlTransform, type UrlTransform } from 'vuemarkik';
@@ -88,28 +134,23 @@ const transformUrl: UrlTransform = (url) => {
 };
 ```
 
-Treat a custom transform as security-sensitive configuration. Do not return a
-URL rejected by `defaultUrlTransform` unless the content and destination are
-trusted.
+## Remaining trust boundary
 
-## What the 1.x boundary does not cover
+Safe mode does not promise:
 
-The default policy does not promise:
-
-- Complete sanitization of arbitrary HAST produced by plugins.
-- Safety of custom component or slot behavior.
+- Safety of the JavaScript executed by plugins, custom components, or slots.
+- Safety after a custom schema or URL transform broadens the defaults.
 - Privacy or safety of remote resources reached through allowed URLs.
 - Protection from denial of service caused by extremely large or pathological
   markdown or expensive plugins.
 
-Apply application-level input-size limits when content is attacker-controlled.
-Move expensive or untrusted processing into an appropriately isolated worker
-when availability is important.
+Apply application-level input-size and update-rate limits when content is
+attacker-controlled. Move expensive processing into an appropriately isolated
+worker when availability is important.
 
 ## Upstream security model
 
-VueMarkik follows the unified ecosystem's guidance instead of assuming that
-parsing alone makes output safe:
+VueMarkik follows the unified ecosystem's guidance:
 
 - [remark security](https://github.com/remarkjs/remark#security)
 - [remark-rehype security](https://github.com/remarkjs/remark-rehype#security)
@@ -117,10 +158,9 @@ parsing alone makes output safe:
 - [hast-util-to-jsx-runtime security](https://github.com/syntax-tree/hast-util-to-jsx-runtime#security)
 - [rehype-sanitize security](https://github.com/rehypejs/rehype-sanitize#security)
 
-These projects recommend sanitizing untrusted HAST before rendering it.
-VueMarkik 1.x provides a non-breaking URL-policy patch; a future major release
-can make full final-HAST sanitization the default without silently changing
-existing plugin output in a patch release.
+These projects recommend sanitizing user-controlled HAST after the last unsafe
+operation. VueMarkik owns that final boundary in safe mode so consumer plugin
+ordering cannot bypass it.
 
 ## Reporting a vulnerability
 

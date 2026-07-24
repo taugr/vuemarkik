@@ -1,5 +1,9 @@
 import { defineComponent, shallowRef, watch } from 'vue';
-import { defaultUrlTransform, renderMarkdownSync } from './rendering';
+import {
+  defaultSanitizeSchema,
+  defaultUrlTransform,
+  renderMarkdownSync,
+} from './rendering';
 import type {
   ComponentsProp,
   RehypePluginsProp,
@@ -8,6 +12,9 @@ import type {
   MarkdownProp,
   RenderErrorModeProp,
   RenderErrorPayload,
+  SanitizeSchema,
+  SanitizeSchemaProp,
+  SecurityModeProp,
   UrlTransformProp,
 } from './types';
 import type { VNodeChild } from 'vue';
@@ -31,6 +38,14 @@ export default defineComponent({
     rehypePlugins: {
       type: Array as RehypePluginsProp,
       default: () => [],
+    },
+    securityMode: {
+      type: String as SecurityModeProp,
+      default: 'safe',
+    },
+    sanitizeSchema: {
+      type: Object as SanitizeSchemaProp,
+      default: (): SanitizeSchema => defaultSanitizeSchema,
     },
     urlTransform: {
       type: Function as UrlTransformProp,
@@ -60,6 +75,8 @@ export default defineComponent({
         },
         remarkPlugins: props.remarkPlugins,
         rehypePlugins: props.rehypePlugins,
+        securityMode: props.securityMode,
+        sanitizeSchema: props.sanitizeSchema,
         urlTransform: props.urlTransform,
         errorMode: props.errorMode,
       });
@@ -81,6 +98,8 @@ export default defineComponent({
         props.components,
         props.remarkPlugins,
         props.rehypePlugins,
+        props.securityMode,
+        props.sanitizeSchema,
         props.urlTransform,
         props.errorMode,
       ],

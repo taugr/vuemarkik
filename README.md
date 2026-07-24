@@ -10,7 +10,7 @@
 
 ## Features
 
-✨ **Safer Rendering** - Builds Vue VNodes without `v-html`, keeps raw HTML disabled, and filters unsafe URL protocols<br>
+✨ **Safe by Default** - Sanitizes final HAST, builds Vue VNodes without `v-html`, and keeps raw HTML disabled<br>
 🎨 **Custom Components** - Replace any markdown element with your own Vue components  
 🔌 **Plugin Support** - Full support for remark and rehype plugins  
 📝 **GFM & More** - GitHub Flavored Markdown, math (KaTeX), diagrams (Mermaid), and syntax highlighting  
@@ -101,15 +101,16 @@ This is especially useful for streamed markdown where intermediate output may be
 
 ## Security
 
-VueMarkik renders parsed markdown as Vue VNodes without `v-html` and does not
-enable raw HTML. Its default URL policy removes URL properties that use
-untrusted protocols such as `javascript:`, `vbscript:`, and `data:`.
+VueMarkik sanitizes the final HAST after remark and rehype plugins run, renders
+the result as Vue VNodes without `v-html`, keeps raw HTML disabled, and filters
+unsafe URL protocols. This is the default `securityMode="safe"` behavior.
 
-VueMarkik 1.x does not sanitize every element and property produced by custom
-remark or rehype plugins. Treat plugins, custom components, slots, and custom
-URL transforms as trusted application code. Read the
+Use `securityMode="trusted"` only for trusted content when a plugin needs output
+that the safe schema removes. Plugins, custom components, slots, custom schemas,
+and custom URL transforms remain trusted application configuration. Read the
 [security guide](https://vuemarkik.dev/guide/security) before rendering
-untrusted content with extensions.
+untrusted content with extensions, and see
+[Migrating to v2](https://vuemarkik.dev/guide/migrating-to-v2) when upgrading.
 
 ## Components
 
@@ -141,6 +142,7 @@ VueMarkik exports four rendering helpers:
 - [Streaming Markdown](https://vuemarkik.dev/guide/streaming-markdown) - Handle incremental and LLM-style markdown updates
 - [Remark & Rehype Plugins](https://vuemarkik.dev/guide/remark-rehype-plugins) - Extend markdown processing
 - [Security](https://vuemarkik.dev/guide/security) - Understand the URL policy, plugin trust boundary, and threat model
+- [Migrating to v2](https://vuemarkik.dev/guide/migrating-to-v2) - Adopt the new safe default and audit plugin output
 - [API Reference](https://vuemarkik.dev/guide/api-reference) - Complete API documentation
 
 ## Development

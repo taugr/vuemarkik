@@ -81,6 +81,7 @@ This renders the following:
 Learn how to customize and extend VueMarkik:
 
 - **[Security](./security)** - Review the default URL policy and plugin trust boundary
+- **[Migrating to v2](./migrating-to-v2)** - Upgrade existing plugin integrations to the safe default
 - **[Custom Vue Components](./custom-vue-components)** - Use your own components or slots for rendering
 - **[Remark & Rehype Plugins](./remark-rehype-plugins)** - Extend markdown syntax and rendering
 - **[Streaming Markdown](./streaming-markdown)** - Handle incremental LLM output without console spam

@@ -80,12 +80,20 @@ import 'katex/dist/katex.min.css';
 
 Pass both plugins to VueMarkik through the `remarkPlugins` and `rehypePlugins` props. Math enclosed in dollar signs will be transformed automatically. The example below uses `String.raw` so LaTeX backslashes can be written exactly once.
 
+::: warning Security mode
+KaTeX generates broad classes and inline styles that the default safe schema
+removes. The examples on this page use `security-mode="trusted"` and should only
+render trusted markdown. KaTeX's own `trust` option expands its security surface
+further and should remain disabled for untrusted input.
+:::
+
 ```vue
 <template>
   <MarkdownHooks
     :text="proof"
     :remark-plugins="remarkPlugins"
     :rehype-plugins="rehypePlugins"
+    security-mode="trusted"
   />
 </template>
 
@@ -137,7 +145,12 @@ This renders as:
 <MarkdownExample>
 
 ::: raw
-<MarkdownHooks :text="proof" :remark-plugins="remarkPlugins" :rehypePlugins="rehypePlugins" />
+<MarkdownHooks
+  :text="proof"
+  :remark-plugins="remarkPlugins"
+  :rehype-plugins="rehypePlugins"
+  security-mode="trusted"
+/>
 :::
 
 </MarkdownExample>

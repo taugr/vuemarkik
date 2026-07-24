@@ -12,14 +12,16 @@ If a render fails, `Markdown` preserves the last successful render by default. T
 
 **Props:**
 
-| Prop            | Type              | Required | Default               | Description                               |
-| --------------- | ----------------- | -------- | --------------------- | ----------------------------------------- |
-| `text`          | `string`          | Yes      | -                     | Markdown content to render                |
-| `components`    | `object`          | No       | `{}`                  | Custom Vue components for HTML elements   |
-| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`                  | Remark plugins to process markdown        |
-| `rehypePlugins` | `RehypePlugins`   | No       | `[]`                  | Rehype plugins to transform HTML          |
-| `urlTransform`  | `UrlTransform`    | No       | `defaultUrlTransform` | Filters or rewrites URL properties        |
-| `errorMode`     | `RenderErrorMode` | No       | `'silent'`            | Controls how render failures are surfaced |
+| Prop             | Type              | Required | Default                 | Description                               |
+| ---------------- | ----------------- | -------- | ----------------------- | ----------------------------------------- |
+| `text`           | `string`          | Yes      | -                       | Markdown content to render                |
+| `components`     | `object`          | No       | `{}`                    | Custom Vue components for HTML elements   |
+| `remarkPlugins`  | `RemarkPlugins`   | No       | `[]`                    | Remark plugins to process markdown        |
+| `rehypePlugins`  | `RehypePlugins`   | No       | `[]`                    | Rehype plugins to transform HTML          |
+| `securityMode`   | `SecurityMode`    | No       | `'safe'`                | Selects safe or trusted plugin output     |
+| `sanitizeSchema` | `SanitizeSchema`  | No       | `defaultSanitizeSchema` | Configures final-HAST sanitization        |
+| `urlTransform`   | `UrlTransform`    | No       | `defaultUrlTransform`   | Filters or rewrites URL properties        |
+| `errorMode`      | `RenderErrorMode` | No       | `'silent'`              | Controls how render failures are surfaced |
 
 **Events:**
 
@@ -74,14 +76,16 @@ If an updated render fails, `MarkdownAsync` keeps the previous successful output
 
 **Props:**
 
-| Prop            | Type              | Required | Default               | Description                               |
-| --------------- | ----------------- | -------- | --------------------- | ----------------------------------------- |
-| `text`          | `string`          | Yes      | -                     | Markdown content to render                |
-| `components`    | `object`          | No       | `{}`                  | Custom Vue components for HTML elements   |
-| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`                  | Remark plugins to process markdown        |
-| `rehypePlugins` | `RehypePlugins`   | No       | `[]`                  | Rehype plugins to transform HTML          |
-| `urlTransform`  | `UrlTransform`    | No       | `defaultUrlTransform` | Filters or rewrites URL properties        |
-| `errorMode`     | `RenderErrorMode` | No       | `'silent'`            | Controls how render failures are surfaced |
+| Prop             | Type              | Required | Default                 | Description                               |
+| ---------------- | ----------------- | -------- | ----------------------- | ----------------------------------------- |
+| `text`           | `string`          | Yes      | -                       | Markdown content to render                |
+| `components`     | `object`          | No       | `{}`                    | Custom Vue components for HTML elements   |
+| `remarkPlugins`  | `RemarkPlugins`   | No       | `[]`                    | Remark plugins to process markdown        |
+| `rehypePlugins`  | `RehypePlugins`   | No       | `[]`                    | Rehype plugins to transform HTML          |
+| `securityMode`   | `SecurityMode`    | No       | `'safe'`                | Selects safe or trusted plugin output     |
+| `sanitizeSchema` | `SanitizeSchema`  | No       | `defaultSanitizeSchema` | Configures final-HAST sanitization        |
+| `urlTransform`   | `UrlTransform`    | No       | `defaultUrlTransform`   | Filters or rewrites URL properties        |
+| `errorMode`      | `RenderErrorMode` | No       | `'silent'`              | Controls how render failures are surfaced |
 
 **Events:**
 
@@ -121,14 +125,16 @@ Reactive markdown renderer using Vue composables. Provides reactive updates and 
 
 **Props:**
 
-| Prop            | Type              | Required | Default               | Description                               |
-| --------------- | ----------------- | -------- | --------------------- | ----------------------------------------- |
-| `text`          | `string`          | Yes      | -                     | Markdown content to render                |
-| `components`    | `object`          | No       | `{}`                  | Custom Vue components for HTML elements   |
-| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`                  | Remark plugins to process markdown        |
-| `rehypePlugins` | `RehypePlugins`   | No       | `[]`                  | Rehype plugins to transform HTML          |
-| `urlTransform`  | `UrlTransform`    | No       | `defaultUrlTransform` | Filters or rewrites URL properties        |
-| `errorMode`     | `RenderErrorMode` | No       | `'silent'`            | Controls how render failures are surfaced |
+| Prop             | Type              | Required | Default                 | Description                               |
+| ---------------- | ----------------- | -------- | ----------------------- | ----------------------------------------- |
+| `text`           | `string`          | Yes      | -                       | Markdown content to render                |
+| `components`     | `object`          | No       | `{}`                    | Custom Vue components for HTML elements   |
+| `remarkPlugins`  | `RemarkPlugins`   | No       | `[]`                    | Remark plugins to process markdown        |
+| `rehypePlugins`  | `RehypePlugins`   | No       | `[]`                    | Rehype plugins to transform HTML          |
+| `securityMode`   | `SecurityMode`    | No       | `'safe'`                | Selects safe or trusted plugin output     |
+| `sanitizeSchema` | `SanitizeSchema`  | No       | `defaultSanitizeSchema` | Configures final-HAST sanitization        |
+| `urlTransform`   | `UrlTransform`    | No       | `defaultUrlTransform`   | Filters or rewrites URL properties        |
+| `errorMode`      | `RenderErrorMode` | No       | `'silent'`              | Controls how render failures are surfaced |
 
 **Events:**
 
@@ -306,6 +312,49 @@ import rehypeMermaid from 'rehype-mermaid';
 // ---cut---
 const plugins: RehypePlugins = [rehypeKatex, rehypeMermaid];
 ```
+
+#### securityMode
+
+- **Type:** `'safe' | 'trusted'`
+- **Required:** No
+- **Default:** `'safe'`
+- **Description:** Controls whether final HAST is sanitized after plugins run
+
+Safe mode owns the final sanitization boundary. Trusted mode preserves legacy
+plugin output and should only be used with trusted markdown and plugins.
+
+```ts twoslash
+import type { SecurityMode } from 'vuemarkik';
+// ---cut---
+const securityMode: SecurityMode = 'safe';
+```
+
+#### sanitizeSchema
+
+- **Type:** `SanitizeSchema`
+- **Required:** No
+- **Default:** `defaultSanitizeSchema`
+- **Description:** Configures the allowlist used by final-HAST sanitization
+
+The prop is only used in safe mode. Extend the exported default rather than
+starting from an empty object:
+
+```ts twoslash
+import { defaultSanitizeSchema, type SanitizeSchema } from 'vuemarkik';
+// ---cut---
+const sanitizeSchema: SanitizeSchema = {
+  ...defaultSanitizeSchema,
+  attributes: {
+    ...defaultSanitizeSchema.attributes,
+    code: [
+      ...(defaultSanitizeSchema.attributes?.code ?? []),
+      ['className', 'language-javascript'],
+    ],
+  },
+};
+```
+
+Custom schemas change the security boundary. See [Security](./security).
 
 #### urlTransform
 

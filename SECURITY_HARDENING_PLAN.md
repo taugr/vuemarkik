@@ -1,8 +1,35 @@
 # VueMarkik Security Hardening Plan
 
-- Status: Proposed
+- Status: In implementation
 - Target releases: `v1.2.2` security patch, followed by `v2.0.0`
 - Scope: Rendering untrusted markdown safely through the existing unified, remark, rehype, HAST, and Vue pipeline
+
+## Implementation Status
+
+Updated 2026-07-24:
+
+- `v1.2.2` is published and independently verified from the npm registry.
+- The URL policy, shared renderer coverage, SSR exploit regression, empty-output
+  fix, security guide, GitHub release, and deployed documentation are complete.
+- The `v2` safe/trusted implementation, final-HAST sanitizer, migration guide,
+  plugin compatibility suite, and bounded input regressions are complete
+  locally.
+- `v2.0.0-beta.1` packed-consumer verification, publication, deployed-docs
+  verification, and the final promotion gate remain.
+
+Resolved design decisions:
+
+1. `urlTransform` receives the URL, property name, and a read-only TypeScript
+   view of the current HAST element.
+2. The default URL protocols are relative URLs plus `http`, `https`, `mailto`,
+   and `tel`.
+3. The safe schema extends `rehype-sanitize`'s GitHub-style default with `tel`
+   links.
+4. Custom schemas replace the default schema and are documented as
+   security-sensitive configuration.
+5. GFM is preserved in safe mode. Shiki, KaTeX, and Mermaid retain readable
+   semantic/source output in safe mode but require trusted mode for their full
+   generated presentation unless the application maintains a narrow schema.
 
 ## Objective
 

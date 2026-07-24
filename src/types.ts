@@ -1,5 +1,6 @@
 import type { Components } from 'hast-util-to-jsx-runtime';
 import type { Element } from 'hast';
+import type { Schema } from 'hast-util-sanitize';
 import type { PluggableList } from 'unified';
 import type { PropType, SlotsType, VNode } from 'vue';
 
@@ -22,6 +23,16 @@ export type UrlTransform = (
 ) => string | undefined;
 
 export type UrlTransformProp = PropType<UrlTransform>;
+
+export type SecurityMode = 'safe' | 'trusted';
+
+export type SecurityModeProp = PropType<SecurityMode>;
+
+export interface SanitizeSchema extends Schema {
+  allowComments?: Schema['allowComments'];
+}
+
+export type SanitizeSchemaProp = PropType<SanitizeSchema>;
 
 export type RenderErrorMode = 'silent' | 'warn' | 'throw';
 

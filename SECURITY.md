@@ -11,12 +11,13 @@ Security fixes are provided for the latest published major version.
 ## Rendering Security
 
 VueMarkik renders markdown as Vue VNodes without `v-html`, leaves raw HTML
-disabled, and applies a default URL policy after remark and rehype plugins run.
-The policy removes URL properties with protocols such as `javascript:`,
-`vbscript:`, and `data:`.
+In safe mode it also sanitizes the final HAST after plugins run, removing
+elements and properties that are not allowed by the default schema. The URL
+policy removes properties with protocols such as `javascript:`, `vbscript:`,
+and `data:`.
 
-VueMarkik 1.x does not fully sanitize arbitrary HAST produced by plugins.
-Plugins, custom components, slots, and custom URL transforms are trusted
-application code. See the
+Trusted mode intentionally skips final-HAST sanitization for compatibility.
+Plugins, custom components, slots, custom schemas, and custom URL transforms
+are trusted application code. See the
 [security guide](https://vuemarkik.dev/guide/security) for the current threat
 model and guidance.

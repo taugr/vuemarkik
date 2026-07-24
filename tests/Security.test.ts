@@ -1,12 +1,22 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import type { Root } from 'hast';
-import { createSSRApp, defineComponent, h, nextTick, Suspense } from 'vue';
+import {
+  createSSRApp,
+  defineComponent,
+  h,
+  markRaw,
+  nextTick,
+  Suspense,
+} from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import {
+  defaultSanitizeSchema,
   defaultUrlTransform,
   Markdown,
   MarkdownAsync,
   MarkdownHooks,
+  type SanitizeSchema,
+  type SecurityMode,
 } from '../src';
 
 const unsafeUrls = [
@@ -54,6 +64,45 @@ const addUnsafeUrlAttributes = () => (tree: Root) => {
   );
 };
 
+const addUnsafeHast = () => (tree: Root) => {
+  tree.children.push(
+    {
+      type: 'element',
+      tagName: 'iframe',
+      properties: { src: 'https://example.com/embed' },
+      children: [],
+    },
+    {
+      type: 'element',
+      tagName: 'a',
+      properties: {
+        href: 'https://example.com',
+        onClick: 'alert(1)',
+        style: 'background-image: url(javascript:alert(1))',
+      },
+      children: [{ type: 'text', value: 'plugin link' }],
+    },
+  );
+};
+
+const addClobberingId = () => (tree: Root) => {
+  tree.children.push({
+    type: 'element',
+    tagName: 'h2',
+    properties: { id: 'location' },
+    children: [{ type: 'text', value: 'Location' }],
+  });
+};
+
+const iframeSchema: SanitizeSchema = {
+  ...defaultSanitizeSchema,
+  tagNames: [...(defaultSanitizeSchema.tagNames ?? []), 'iframe'],
+  attributes: {
+    ...defaultSanitizeSchema.attributes,
+    iframe: ['src'],
+  },
+};
+
 describe('URL security', () => {
   test.each(safeUrls)('allows a safe URL: %s', (url) => {
     expect(defaultUrlTransform(url)).toBe(url);
@@ -92,6 +141,7 @@ describe('URL security', () => {
       props: {
         text: 'Content',
         rehypePlugins: [addUnsafeUrlAttributes],
+        securityMode: 'trusted',
       },
     });
 
@@ -198,5 +248,213 @@ describe('empty markdown rendering', () => {
     );
 
     expect(html).toBe('<!---->');
+  });
+});
+
+describe('final HAST sanitization', () => {
+  test('uses safe mode by default after user plugins run', () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+      },
+    });
+
+    expect(wrapper.find('iframe').exists()).toBe(false);
+    expect(wrapper.get('a').attributes('href')).toBe('https://example.com');
+    expect(wrapper.get('a').attributes('onclick')).toBeUndefined();
+    expect(wrapper.get('a').attributes('style')).toBeUndefined();
+  });
+
+  test('passes sanitized properties and nodes to custom components', () => {
+    let receivedNode: unknown;
+    const CapturingLink = markRaw(
+      defineComponent({
+        props: {
+          node: Object,
+          href: String,
+        },
+        setup(props) {
+          receivedNode = props.node;
+          return () => h('a', { href: props.href }, 'plugin link');
+        },
+      }),
+    );
+
+    mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+        components: { a: CapturingLink },
+      },
+    });
+
+    expect(receivedNode).toMatchObject({
+      tagName: 'a',
+      properties: {
+        href: 'https://example.com',
+      },
+    });
+    expect(receivedNode).not.toMatchObject({
+      properties: {
+        onClick: expect.anything(),
+        style: expect.anything(),
+      },
+    });
+  });
+
+  test('supports an explicit trusted mode for existing plugin output', () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+        securityMode: 'trusted',
+      },
+    });
+
+    expect(wrapper.get('iframe').attributes('src')).toBe(
+      'https://example.com/embed',
+    );
+    expect(wrapper.get('a').attributes('href')).toBe('https://example.com');
+  });
+
+  test('supports a custom schema in safe mode', () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+        sanitizeSchema: iframeSchema,
+      },
+    });
+
+    expect(wrapper.get('iframe').attributes('src')).toBe(
+      'https://example.com/embed',
+    );
+    expect(wrapper.get('a').attributes('onclick')).toBeUndefined();
+  });
+
+  test('rerenders when security mode changes', async () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+      },
+    });
+
+    expect(wrapper.find('iframe').exists()).toBe(false);
+
+    await wrapper.setProps({ securityMode: 'trusted' });
+
+    expect(wrapper.find('iframe').exists()).toBe(true);
+  });
+
+  test('rerenders when the sanitization schema changes', async () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+      },
+    });
+
+    expect(wrapper.find('iframe').exists()).toBe(false);
+
+    await wrapper.setProps({ sanitizeSchema: iframeSchema });
+
+    expect(wrapper.find('iframe').exists()).toBe(true);
+  });
+
+  test('allows telephone links in the default safe schema', () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: '[telephone](tel:+441234567890)',
+      },
+    });
+
+    expect(wrapper.get('a').attributes('href')).toBe('tel:+441234567890');
+  });
+
+  test('prefixes DOM-clobbering identifiers', () => {
+    const wrapper = mount(Markdown, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addClobberingId],
+      },
+    });
+
+    expect(wrapper.get('h2').attributes('id')).toBe('user-content-location');
+  });
+
+  test.each<SecurityMode>(['safe', 'trusted'])(
+    'keeps raw HTML disabled in %s mode',
+    (securityMode) => {
+      const wrapper = mount(Markdown, {
+        props: {
+          text: '<script>alert(1)</script>',
+          securityMode,
+        },
+      });
+
+      expect(wrapper.find('script').exists()).toBe(false);
+      expect(wrapper.text()).not.toContain('alert(1)');
+    },
+  );
+
+  test('sanitizes plugin output in MarkdownAsync', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          return () =>
+            h(Suspense, null, {
+              default: () =>
+                h(MarkdownAsync, {
+                  text: 'Content',
+                  rehypePlugins: [addUnsafeHast],
+                }),
+            });
+        },
+      }),
+    );
+
+    await flushPromises();
+
+    expect(wrapper.find('iframe').exists()).toBe(false);
+  });
+
+  test('sanitizes plugin output in MarkdownHooks', async () => {
+    const wrapper = mount(MarkdownHooks, {
+      props: {
+        text: 'Content',
+        rehypePlugins: [addUnsafeHast],
+      },
+    });
+
+    await flushPromises();
+    await nextTick();
+
+    expect(wrapper.find('iframe').exists()).toBe(false);
+  });
+
+  test('handles a bounded large set of links in safe mode', () => {
+    const linkCount = 500;
+    const text = Array.from(
+      { length: linkCount },
+      (_, index) => `[link ${index}](https://example.com/${index})`,
+    ).join('\n\n');
+    const wrapper = mount(Markdown, {
+      props: { text },
+    });
+
+    expect(wrapper.findAll('a')).toHaveLength(linkCount);
+  });
+
+  test('handles bounded deeply nested markdown in safe mode', () => {
+    const nestingDepth = 100;
+    const text = `${'> '.repeat(nestingDepth)}deep content`;
+    const wrapper = mount(Markdown, {
+      props: { text },
+    });
+
+    expect(wrapper.text()).toContain('deep content');
+    expect(wrapper.findAll('blockquote').length).toBeGreaterThan(0);
   });
 });

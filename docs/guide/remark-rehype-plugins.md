@@ -4,9 +4,11 @@ VueMarkik utilizes _remark_ and _rehype_ to parse and process markdown to Vue co
 
 ::: warning Security boundary
 Plugins execute application code and can add arbitrary HAST elements and
-properties. VueMarkik 1.x applies its URL policy after plugins run, but it does
-not fully sanitize plugin output. Only use plugins you trust and review the
-[security guide](./security) when the markdown source is untrusted.
+properties. Safe mode sanitizes their final output, but the plugin code itself
+still runs with your application's privileges. Only use plugins you trust and
+review the [security guide](./security) when the markdown source is untrusted.
+If a plugin's presentation is removed by the default schema, audit it before
+using `security-mode="trusted"` or a custom schema.
 :::
 
 ## Remark Plugins

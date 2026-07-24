@@ -59,6 +59,13 @@ main = print (take 20 fibs)
 
 Syntax highlighting for code blocks can be added through rehype plugins such as shiki, prism, and highlight.js. See the respective documentation pages for configuration and settings for each of these plugins.
 
+::: warning Security mode
+Shiki generates broad classes and inline styles that the default safe schema
+removes. The examples on this page use `security-mode="trusted"` and should only
+render trusted markdown. For untrusted content, keep safe mode and accept
+unstyled semantic code output, or maintain a narrowly audited custom schema.
+:::
+
 ## Shiki
 
 To illustrate how to add syntax highlighting the following example shows how to install and configure shiki with VueMarkik. The steps for other syntax highlighting plugins is similar.
@@ -95,7 +102,11 @@ In this example we use the `MarkdownHooks` component to render code blocks for m
 
 ```vue
 <template>
-  <MarkdownHooks :text="code" :rehype-plugins="rehypePlugins" />
+  <MarkdownHooks
+    :text="code"
+    :rehype-plugins="rehypePlugins"
+    security-mode="trusted"
+  />
 </template>
 
 <script setup lang="ts">
@@ -161,7 +172,11 @@ This renders as:
 <MarkdownExample>
 
 ::: raw
-<MarkdownHooks :text="code" :rehype-plugins="rehypePlugins" />
+<MarkdownHooks
+  :text="code"
+  :rehype-plugins="rehypePlugins"
+  security-mode="trusted"
+/>
 :::
 
 </MarkdownExample>
