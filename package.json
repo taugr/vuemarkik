@@ -1,6 +1,6 @@
 {
   "name": "vuemarkik",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Markdown rendering for Vue.js - extensible and customizable, powered by unified, remark, and rehype",
   "type": "module",
   "license": "MIT",
