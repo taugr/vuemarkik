@@ -1,13 +1,63 @@
 import { h, markRaw } from 'vue';
 import { jsx, Fragment } from 'vue/jsx-runtime';
 import { toJsxRuntime, type Components } from 'hast-util-to-jsx-runtime';
+import { urlAttributes } from 'html-url-attributes';
 import { unified } from 'unified';
+import { visit } from 'unist-util-visit';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import type { PluggableList } from 'unified';
-import type { Nodes } from 'hast';
+import type { Element, Nodes } from 'hast';
 import { VFile } from 'vfile';
-import type { RenderErrorMode } from './types';
+import type { RenderErrorMode, UrlTransform } from './types';
+
+const safeProtocol = /^(https?|mailto|tel)$/i;
+
+export const defaultUrlTransform = (url: string): string | undefined => {
+  const colon = url.indexOf(':');
+  const questionMark = url.indexOf('?');
+  const numberSign = url.indexOf('#');
+  const slash = url.indexOf('/');
+
+  if (
+    colon === -1 ||
+    (slash !== -1 && colon > slash) ||
+    (questionMark !== -1 && colon > questionMark) ||
+    (numberSign !== -1 && colon > numberSign) ||
+    safeProtocol.test(url.slice(0, colon))
+  ) {
+    return url;
+  }
+
+  return undefined;
+};
+
+const transformUrls = (tree: Nodes, urlTransform: UrlTransform) => {
+  visit(tree, 'element', (node: Element) => {
+    for (const [propertyName, allowedTagNames] of Object.entries(
+      urlAttributes,
+    )) {
+      if (
+        allowedTagNames &&
+        !(allowedTagNames as readonly string[]).includes(node.tagName)
+      ) {
+        continue;
+      }
+
+      const value = node.properties[propertyName];
+
+      if (value === null || value === undefined) {
+        continue;
+      }
+
+      node.properties[propertyName] = urlTransform(
+        String(value),
+        propertyName,
+        node,
+      );
+    }
+  });
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const jsxRender = (type: any, props: any, key: any) => {
@@ -25,6 +75,10 @@ const jsxRender = (type: any, props: any, key: any) => {
 };
 
 export const toJsx = (tree: Nodes, components: Partial<Components>) => {
+  if (tree.type === 'root' && tree.children.length === 0) {
+    return null;
+  }
+
   const output = toJsxRuntime(tree, {
     Fragment,
     jsx: jsxRender,
@@ -72,6 +126,7 @@ interface RenderMarkdownOptions {
   components: Partial<Components>;
   remarkPlugins: PluggableList;
   rehypePlugins: PluggableList;
+  urlTransform: UrlTransform;
   errorMode: RenderErrorMode;
 }
 
@@ -92,12 +147,14 @@ export const renderMarkdownSync = ({
   components,
   remarkPlugins,
   rehypePlugins,
+  urlTransform,
   errorMode,
 }: RenderMarkdownOptions): RenderResult => {
   try {
     const processor = getProcessor(remarkPlugins, rehypePlugins);
     const file = createVFile(text);
     const tree = processor.runSync(processor.parse(file), file);
+    transformUrls(tree, urlTransform);
 
     return {
       ok: true,
@@ -118,12 +175,14 @@ export const renderMarkdownAsync = async ({
   components,
   remarkPlugins,
   rehypePlugins,
+  urlTransform,
   errorMode,
 }: RenderMarkdownOptions): Promise<RenderResult> => {
   try {
     const processor = getProcessor(remarkPlugins, rehypePlugins);
     const file = createVFile(text);
     const tree = await processor.run(processor.parse(file), file);
+    transformUrls(tree, urlTransform);
 
     return {
       ok: true,

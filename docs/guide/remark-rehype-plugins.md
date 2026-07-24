@@ -2,6 +2,13 @@
 
 VueMarkik utilizes _remark_ and _rehype_ to parse and process markdown to Vue components. Both of these projects have a rich ecosystem of plugins, enabling support of a variety of markdown formats and extensions, and the ability to transform the rendered output in any desired way.
 
+::: warning Security boundary
+Plugins execute application code and can add arbitrary HAST elements and
+properties. VueMarkik 1.x applies its URL policy after plugins run, but it does
+not fully sanitize plugin output. Only use plugins you trust and review the
+[security guide](./security) when the markdown source is untrusted.
+:::
+
 ## Remark Plugins
 
 Remark plugins can inspect and transform Markdown. Their most common use is to support extensions to the CommonMark syntax, such as GitHub Flavored Markdown (GFM) and MDX.

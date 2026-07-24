@@ -1,4 +1,5 @@
 import type { Components } from 'hast-util-to-jsx-runtime';
+import type { Element } from 'hast';
 import type { PluggableList } from 'unified';
 import type { PropType, SlotsType, VNode } from 'vue';
 
@@ -13,6 +14,14 @@ export type RehypePlugins = PluggableList;
 export type RemarkPluginsProp = PropType<RemarkPlugins>;
 
 export type RehypePluginsProp = PropType<RehypePlugins>;
+
+export type UrlTransform = (
+  url: string,
+  propertyName: string,
+  node: Readonly<Element>,
+) => string | undefined;
+
+export type UrlTransformProp = PropType<UrlTransform>;
 
 export type RenderErrorMode = 'silent' | 'warn' | 'throw';
 

@@ -1,5 +1,5 @@
 import { defineComponent, shallowRef, watch } from 'vue';
-import { renderMarkdownSync } from './rendering';
+import { defaultUrlTransform, renderMarkdownSync } from './rendering';
 import type {
   ComponentsProp,
   RehypePluginsProp,
@@ -8,6 +8,7 @@ import type {
   MarkdownProp,
   RenderErrorModeProp,
   RenderErrorPayload,
+  UrlTransformProp,
 } from './types';
 import type { VNodeChild } from 'vue';
 
@@ -30,6 +31,10 @@ export default defineComponent({
     rehypePlugins: {
       type: Array as RehypePluginsProp,
       default: () => [],
+    },
+    urlTransform: {
+      type: Function as UrlTransformProp,
+      default: defaultUrlTransform,
     },
     errorMode: {
       type: String as RenderErrorModeProp,
@@ -55,6 +60,7 @@ export default defineComponent({
         },
         remarkPlugins: props.remarkPlugins,
         rehypePlugins: props.rehypePlugins,
+        urlTransform: props.urlTransform,
         errorMode: props.errorMode,
       });
 
@@ -75,6 +81,7 @@ export default defineComponent({
         props.components,
         props.remarkPlugins,
         props.rehypePlugins,
+        props.urlTransform,
         props.errorMode,
       ],
       renderContent,

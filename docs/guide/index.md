@@ -1,6 +1,6 @@
 # What is VueMarkik?
 
-**VueMarkik** (pronounced _view-mark-eek_, IPA /vjuː mɑːrk ik/) is a mini component library for Vue.js with components that take a markdown string and safely render it to Vue elements. It is built on top of [unified](https://github.com/unifiedjs/unified), using [remark](https://github.com/remarkjs/remark) to parse markdown, and [rehype](https://github.com/rehypejs/rehype) to render it to Vue components.
+**VueMarkik** (pronounced _view-mark-eek_, IPA /vjuː mɑːrk ik/) is a mini component library for Vue.js with components that take a markdown string and render it to Vue elements without `v-html`. It is built on top of [unified](https://github.com/unifiedjs/unified), using [remark](https://github.com/remarkjs/remark) to parse markdown, and [rehype](https://github.com/rehypejs/rehype) to render it to Vue components. Raw HTML is disabled and unsafe URL protocols are filtered by default; see the [security guide](./security) for the complete trust boundary.
 
 <div class="tip custom-block" style="padding-top: 8px">
 

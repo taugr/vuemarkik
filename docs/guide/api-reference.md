@@ -12,13 +12,14 @@ If a render fails, `Markdown` preserves the last successful render by default. T
 
 **Props:**
 
-| Prop            | Type              | Required | Default    | Description                               |
-| --------------- | ----------------- | -------- | ---------- | ----------------------------------------- |
-| `text`          | `string`          | Yes      | -          | Markdown content to render                |
-| `components`    | `object`          | No       | `{}`       | Custom Vue components for HTML elements   |
-| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`       | Remark plugins to process markdown        |
-| `rehypePlugins` | `RehypePlugins`   | No       | `[]`       | Rehype plugins to transform HTML          |
-| `errorMode`     | `RenderErrorMode` | No       | `'silent'` | Controls how render failures are surfaced |
+| Prop            | Type              | Required | Default               | Description                               |
+| --------------- | ----------------- | -------- | --------------------- | ----------------------------------------- |
+| `text`          | `string`          | Yes      | -                     | Markdown content to render                |
+| `components`    | `object`          | No       | `{}`                  | Custom Vue components for HTML elements   |
+| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`                  | Remark plugins to process markdown        |
+| `rehypePlugins` | `RehypePlugins`   | No       | `[]`                  | Rehype plugins to transform HTML          |
+| `urlTransform`  | `UrlTransform`    | No       | `defaultUrlTransform` | Filters or rewrites URL properties        |
+| `errorMode`     | `RenderErrorMode` | No       | `'silent'`            | Controls how render failures are surfaced |
 
 **Events:**
 
@@ -73,13 +74,14 @@ If an updated render fails, `MarkdownAsync` keeps the previous successful output
 
 **Props:**
 
-| Prop            | Type              | Required | Default    | Description                               |
-| --------------- | ----------------- | -------- | ---------- | ----------------------------------------- |
-| `text`          | `string`          | Yes      | -          | Markdown content to render                |
-| `components`    | `object`          | No       | `{}`       | Custom Vue components for HTML elements   |
-| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`       | Remark plugins to process markdown        |
-| `rehypePlugins` | `RehypePlugins`   | No       | `[]`       | Rehype plugins to transform HTML          |
-| `errorMode`     | `RenderErrorMode` | No       | `'silent'` | Controls how render failures are surfaced |
+| Prop            | Type              | Required | Default               | Description                               |
+| --------------- | ----------------- | -------- | --------------------- | ----------------------------------------- |
+| `text`          | `string`          | Yes      | -                     | Markdown content to render                |
+| `components`    | `object`          | No       | `{}`                  | Custom Vue components for HTML elements   |
+| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`                  | Remark plugins to process markdown        |
+| `rehypePlugins` | `RehypePlugins`   | No       | `[]`                  | Rehype plugins to transform HTML          |
+| `urlTransform`  | `UrlTransform`    | No       | `defaultUrlTransform` | Filters or rewrites URL properties        |
+| `errorMode`     | `RenderErrorMode` | No       | `'silent'`            | Controls how render failures are surfaced |
 
 **Events:**
 
@@ -119,13 +121,14 @@ Reactive markdown renderer using Vue composables. Provides reactive updates and 
 
 **Props:**
 
-| Prop            | Type              | Required | Default    | Description                               |
-| --------------- | ----------------- | -------- | ---------- | ----------------------------------------- |
-| `text`          | `string`          | Yes      | -          | Markdown content to render                |
-| `components`    | `object`          | No       | `{}`       | Custom Vue components for HTML elements   |
-| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`       | Remark plugins to process markdown        |
-| `rehypePlugins` | `RehypePlugins`   | No       | `[]`       | Rehype plugins to transform HTML          |
-| `errorMode`     | `RenderErrorMode` | No       | `'silent'` | Controls how render failures are surfaced |
+| Prop            | Type              | Required | Default               | Description                               |
+| --------------- | ----------------- | -------- | --------------------- | ----------------------------------------- |
+| `text`          | `string`          | Yes      | -                     | Markdown content to render                |
+| `components`    | `object`          | No       | `{}`                  | Custom Vue components for HTML elements   |
+| `remarkPlugins` | `RemarkPlugins`   | No       | `[]`                  | Remark plugins to process markdown        |
+| `rehypePlugins` | `RehypePlugins`   | No       | `[]`                  | Rehype plugins to transform HTML          |
+| `urlTransform`  | `UrlTransform`    | No       | `defaultUrlTransform` | Filters or rewrites URL properties        |
+| `errorMode`     | `RenderErrorMode` | No       | `'silent'`            | Controls how render failures are surfaced |
 
 **Events:**
 
@@ -303,6 +306,29 @@ import rehypeMermaid from 'rehype-mermaid';
 // ---cut---
 const plugins: RehypePlugins = [rehypeKatex, rehypeMermaid];
 ```
+
+#### urlTransform
+
+- **Type:** `UrlTransform`
+- **Required:** No
+- **Default:** `defaultUrlTransform`
+- **Description:** Filters or rewrites URL-bearing HAST properties after
+  plugins run
+
+The default allows relative, fragment, query, HTTP, HTTPS, email, and telephone
+URLs. It removes properties that use other explicit protocols. Return
+`undefined` from a custom transform to remove a property.
+
+```ts twoslash
+import { defaultUrlTransform, type UrlTransform } from 'vuemarkik';
+// ---cut---
+const urlTransform: UrlTransform = (url) => {
+  const safeUrl = defaultUrlTransform(url);
+  return safeUrl?.replace('https://old.example/', 'https://new.example/');
+};
+```
+
+See [Security](./security) before replacing the default policy.
 
 #### errorMode
 

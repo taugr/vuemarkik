@@ -10,7 +10,7 @@
 
 ## Features
 
-✨ **Safe Rendering** - No `v-html` or `dangerouslySetInnerHTML`, all content is rendered through Vue components  
+✨ **Safer Rendering** - Builds Vue VNodes without `v-html`, keeps raw HTML disabled, and filters unsafe URL protocols<br>
 🎨 **Custom Components** - Replace any markdown element with your own Vue components  
 🔌 **Plugin Support** - Full support for remark and rehype plugins  
 📝 **GFM & More** - GitHub Flavored Markdown, math (KaTeX), diagrams (Mermaid), and syntax highlighting  
@@ -99,6 +99,18 @@ All rendering components support the `errorMode` prop:
 
 This is especially useful for streamed markdown where intermediate output may be temporarily invalid.
 
+## Security
+
+VueMarkik renders parsed markdown as Vue VNodes without `v-html` and does not
+enable raw HTML. Its default URL policy removes URL properties that use
+untrusted protocols such as `javascript:`, `vbscript:`, and `data:`.
+
+VueMarkik 1.x does not sanitize every element and property produced by custom
+remark or rehype plugins. Treat plugins, custom components, slots, and custom
+URL transforms as trusted application code. Read the
+[security guide](https://vuemarkik.dev/guide/security) before rendering
+untrusted content with extensions.
+
 ## Components
 
 VueMarkik exports four rendering helpers:
@@ -128,6 +140,7 @@ VueMarkik exports four rendering helpers:
 - [Custom Vue Components](https://vuemarkik.dev/guide/custom-vue-components) - Replace markdown elements with your components
 - [Streaming Markdown](https://vuemarkik.dev/guide/streaming-markdown) - Handle incremental and LLM-style markdown updates
 - [Remark & Rehype Plugins](https://vuemarkik.dev/guide/remark-rehype-plugins) - Extend markdown processing
+- [Security](https://vuemarkik.dev/guide/security) - Understand the URL policy, plugin trust boundary, and threat model
 - [API Reference](https://vuemarkik.dev/guide/api-reference) - Complete API documentation
 
 ## Development
