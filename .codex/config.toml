@@ -1,0 +1,3 @@
+# Project defaults; explicit user model choices can override these settings.
+model = "gpt-6-astra"
+model_reasoning_effort = "medium"

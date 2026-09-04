@@ -2,6 +2,16 @@
 
 This file provides guidance to Codex and other coding agents working in this repository.
 
+## Codex workflow
+
+This project's `.codex/config.toml` selects GPT-6 Astra (`gpt-6-astra`) with medium reasoning. Explicit user model choices take precedence.
+
+- Complete authorized work through implementation and relevant verification. Make routine, reversible decisions using the repository's existing patterns; ask only when missing information materially changes the scope or outcome.
+- Preserve unrelated working-tree changes and the public rendering contract, including safe-mode sanitization, custom component slots, and async stale-render protection.
+- Follow explicit user boundaries on planning, commits, pushes, releases, and deployment. Prepare a concrete result before requesting any additional authorization that is actually needed.
+- Keep reports concise: state what changed, what was verified, and any remaining blocker. Run checks proportional to the change and avoid repeating successful checks without new evidence.
+- Check `package.json` for current scripts before running commands. This library has no OpenAI API dependency; the model selection configures Codex development work.
+
 ## Project Overview
 
 VueMarkik is a Vue 3 library for rendering markdown safely without `v-html` or `dangerouslySetInnerHTML`. It uses the unified/remark/rehype pipeline and converts the resulting HAST tree into Vue VNodes with `hast-util-to-jsx-runtime`.
@@ -26,16 +36,14 @@ pnpm playground
 pnpm test
 pnpm test:watch
 pnpm test:coverage
-pnpm typecheck
-pnpm check
-pnpm check:fix
+pnpm lint
+pnpm lint:eslint
+pnpm lint:eslint:fix
+pnpm lint:oxlint
+pnpm lint:oxlint:fix
 pnpm fmt
 pnpm fmt:fix
 pnpm quality
-pnpm quality:check
-pnpm quality:typecheck
-pnpm quality:test
-pnpm quality:fmt
 ```
 
 ### Docs and release
@@ -170,7 +178,7 @@ Key patterns:
 - Reuse fixtures and helper plugins from `tests/helpers.ts`.
 - Coverage is configured with V8 and enforced at 100% for included `src/**/*.ts` files except `src/index.ts` and `src/types.ts`.
 
-After code changes, run the most relevant checks. For broad changes, prefer `pnpm quality`.
+After code changes, run the most relevant checks. For broad changes, run `pnpm quality` (lint and coverage tests) and `pnpm fmt`. Run `pnpm build` for library output and declaration changes, and `pnpm docs:build` for documentation changes. Instruction-only changes need a diff and formatting check.
 
 ## Documentation
 
@@ -193,9 +201,9 @@ Important repo detail:
 
 - Always use pnpm, never npm or yarn.
 - Keep TypeScript explicit and compatible with strict mode.
-- Linting uses `oxlint` via `pnpm check`; autofixes use `pnpm check:fix`.
+- Linting uses ESLint and oxlint via `pnpm lint`; targeted autofixes use `pnpm lint:eslint:fix` and `pnpm lint:oxlint:fix`.
 - Formatting uses `oxfmt` via `pnpm fmt`; autofixes use `pnpm fmt:fix`.
-- `pnpm quality` runs `quality:check`, `quality:typecheck`, `quality:test`, and `quality:fmt` in parallel.
+- `pnpm quality` runs `lint` and `test:coverage` in parallel; formatting is checked separately with `pnpm fmt`.
 - `lint-staged` runs `oxfmt --no-error-on-unmatched-pattern` on staged files.
 - Use `defineComponent()` for library components.
 - Wrapper renderer components intentionally set `inheritAttrs: false`.
