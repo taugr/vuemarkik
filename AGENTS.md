@@ -4,7 +4,7 @@ This file provides guidance to Codex and other coding agents working in this rep
 
 ## Codex workflow
 
-Codex uses `gpt-6-astra` with medium reasoning in `.codex/config.toml`. Preserve that effort and explicit user model choices. This workflow applies the [Astra prompting guidance](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices).
+Codex uses `gpt-6-astra` with high reasoning in `.codex/config.toml`. Preserve that effort and explicit user model choices. This workflow applies the [Astra prompting guidance](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices).
 
 - Carry action requests through the authorized implementation and verification. Resolve routine choices from the project; ask only when the answer changes the result materially, and continue independent work while waiting. Keep the original goal when the user adds corrections or side questions.
 - Preserve unrelated edits and the user's boundaries for commits, publishing, and deployment. Reuse authorization already given; prepare the reviewable result before requesting any additional permission.
