@@ -1,23 +1,15 @@
 {
-  // Enable Renovate
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-
-  // Extend from recommended base configuration
-  extends: ['config:recommended', ':disableDependencyDashboard'],
-
-  // Timezone for schedules
+  extends: ['config:recommended'],
   timezone: 'Asia/Yerevan',
-
-  // Fallback schedule for anything without a specific schedule
-  schedule: ['* 0-12 * * 1-5'],
-
-  // Labels for GitHub PRs
+  // Batch routine updates on Saturday mornings instead of opening daily PRs.
+  schedule: ['* 0-8 * * 6'],
   labels: ['dependencies'],
-
-  // Match pnpm's strict one-day package-age guardrail for npm updates.
-  // Lockfile maintenance, package replacement, and package pinning updates still
-  // need pnpm enforcement or manual confirmation because Renovate cannot fully
-  // validate every path where those update types can introduce fresh packages.
+  dependencyDashboard: true,
+  prConcurrentLimit: 2,
+  prHourlyLimit: 1,
+  // Review grouped updates before merging; never silently merge a major.
+  automerge: false,
   packageRules: [
     {
       description: 'Wait one day before npm package updates',
@@ -25,65 +17,24 @@
       minimumReleaseAge: '1 day',
       internalChecksFilter: 'strict',
     },
-
-    // Package rules for different update schedules
     {
-      description: 'Update dependencies every morning',
-      matchDepTypes: [
-        'dependencies',
-        'peerDependencies',
-        'pnpm.catalog',
-        'pnpm.catalog.*',
-      ],
-      // Cron: Every day in the morning (minute hour day month weekday)
-      schedule: ['* 0-12 * * *'],
-    },
-    {
-      description: 'Automerge non-major runtime and peer dependency updates',
-      matchDepTypes: ['dependencies', 'peerDependencies'],
+      description: 'Group routine non-major package, pnpm, and GitHub Actions updates',
       matchUpdateTypes: ['minor', 'patch', 'digest'],
-      automerge: true,
-      automergeType: 'pr',
+      groupName: 'weekly non-major dependencies',
+      groupSlug: 'weekly-non-major',
     },
     {
-      description: 'Update devDependencies every Saturday morning',
-      matchDepTypes: ['devDependencies'],
-      // Cron: Every Saturday in the morning (minute hour day month weekday)
-      schedule: ['* 0-12 * * 6'],
-    },
-    {
-      description: 'Update pnpm every Saturday morning',
-      matchDepTypes: ['packageManager'],
-      matchPackageNames: ['pnpm'],
-      // Cron: Every Saturday in the morning (minute hour day month weekday)
-      schedule: ['* 0-12 * * 6'],
-    },
-    {
-      description: 'Update GitHub Actions workflows on 3rd Monday of the month',
-      matchFileNames: ['.github/workflows/**'],
-      // Cron: Every Monday during days 15-21 (contains 3rd Monday)
-      schedule: ['* 0-12 15-21 * 1'],
-      automerge: true,
-      automergeType: 'pr',
-    },
-    {
-      description: 'Automerge non-major pnpm updates like devDependencies',
-      matchPackageNames: ['pnpm'],
-      matchUpdateTypes: ['minor', 'patch', 'digest'],
-      automerge: true,
-      automergeType: 'pr',
-    },
-    {
-      description: 'Auto-merge devDependencies',
-      matchDepTypes: ['devDependencies'],
-      automerge: true,
-      automergeType: 'pr',
-    },
-    {
-      description: 'Group non-major devDependencies; majors stay one PR per package',
-      matchDepTypes: ['devDependencies'],
-      matchUpdateTypes: ['minor', 'patch', 'digest'],
-      groupName: 'dev dependencies',
+      description: 'Create major update PRs only after dashboard approval',
+      matchUpdateTypes: ['major'],
+      dependencyDashboardApproval: true,
     },
   ],
+  // Security fixes remain independent of the routine group and approval gate.
+  vulnerabilityAlerts: {
+    enabled: true,
+    groupName: null,
+    dependencyDashboardApproval: false,
+    minimumReleaseAge: null,
+    automerge: false,
+  },
 }
