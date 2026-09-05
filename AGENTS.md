@@ -4,13 +4,16 @@ This file provides guidance to Codex and other coding agents working in this rep
 
 ## Codex workflow
 
-This project's `.codex/config.toml` selects GPT-6 Astra (`gpt-6-astra`) with medium reasoning. Explicit user model choices take precedence.
+Codex uses `gpt-6-astra` with medium reasoning in `.codex/config.toml`. Preserve that effort and explicit user model choices. This workflow applies the [Astra prompting guidance](https://developers.openai.com/api/docs/guides/latest-model#prompting-best-practices).
 
-- Complete authorized work through implementation and relevant verification. Make routine, reversible decisions using the repository's existing patterns; ask only when missing information materially changes the scope or outcome.
-- Preserve unrelated working-tree changes and the public rendering contract, including safe-mode sanitization, custom component slots, and async stale-render protection.
-- Follow explicit user boundaries on planning, commits, pushes, releases, and deployment. Prepare a concrete result before requesting any additional authorization that is actually needed.
-- Keep reports concise: state what changed, what was verified, and any remaining blocker. Run checks proportional to the change and avoid repeating successful checks without new evidence.
-- Check `package.json` for current scripts before running commands. This library has no OpenAI API dependency; the model selection configures Codex development work.
+- Carry action requests through the authorized implementation and verification. Resolve routine choices from the project; ask only when the answer changes the result materially, and continue independent work while waiting. Keep the original goal when the user adds corrections or side questions.
+- Preserve unrelated edits and the user's boundaries for commits, publishing, and deployment. Reuse authorization already given; prepare the reviewable result before requesting any additional permission.
+- Read applicable project skills for the affected area. User instructions take precedence over skill guidelines, subject to system and developer rules. If a skill blocks progress, link to the skill, quote the exact instruction, and explain whether the restriction is explicit or inferred.
+- Report the outcome, evidence, and remaining limits in concise, plain prose. Use lists for steps or comparisons; avoid stock summaries and unnecessary jargon.
+- Run checks proportional to the change and required project gates. Once they pass, repeat or broaden them only for new edits, failures, or unresolved concerns. Add tests for meaningful behavior, not to mirror low-impact documentation or configuration edits.
+- Delegate only when the user or governing instructions authorize it. Then assign independent, bounded work with clear ownership and readable handoffs; avoid duplicate investigation.
+- Preserve safe-mode sanitization, URL filtering, component/slot contracts, and stale-render protection across the synchronous and asynchronous renderers. Define success for the affected public behavior before choosing checks.
+- Use the Testing section to select checks. Add tests for observable rendering behavior; instruction edits need formatting and a diff review, without a library or docs-site rebuild.
 
 ## Project Overview
 
@@ -178,7 +181,7 @@ Key patterns:
 - Reuse fixtures and helper plugins from `tests/helpers.ts`.
 - Coverage is configured with V8 and enforced at 100% for included `src/**/*.ts` files except `src/index.ts` and `src/types.ts`.
 
-After code changes, run the most relevant checks. For broad changes, run `pnpm quality` (lint and coverage tests) and `pnpm fmt`. Run `pnpm build` for library output and declaration changes, and `pnpm docs:build` for documentation changes. Instruction-only changes need a diff and formatting check.
+After code changes, run the most relevant checks. For broad changes, run `pnpm quality` (lint and coverage tests) and `pnpm fmt`. Run `pnpm build` for library output and declaration changes, and `pnpm docs:build` for docs-site source or configuration changes. Instruction-only changes need a diff and formatting check.
 
 ## Documentation
 
