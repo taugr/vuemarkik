@@ -7,7 +7,30 @@ import remarkMath from 'remark-math';
 import { nextTick } from 'vue';
 import { Markdown, MarkdownHooks } from '../src';
 
+const originalResponseBytes = Object.getOwnPropertyDescriptor(
+  Response.prototype,
+  'bytes',
+);
+
 describe('plugin security compatibility', () => {
+  beforeAll(() => {
+    // Shiki's compressed Wasm loader needs this standard API missing from Happy DOM.
+    if (!Response.prototype.bytes) {
+      Object.defineProperty(Response.prototype, 'bytes', {
+        configurable: true,
+        value: async function (this: Response) {
+          return new Uint8Array(await this.arrayBuffer());
+        },
+      });
+    }
+  });
+
+  afterAll(() => {
+    if (!originalResponseBytes) {
+      Reflect.deleteProperty(Response.prototype, 'bytes');
+    }
+  });
+
   test('preserves GFM output in safe mode', () => {
     const wrapper = mount(Markdown, {
       props: {
